@@ -1,0 +1,29 @@
+{
+  "name": "underpass",
+  "owner": {
+    "name": "Underpass AI",
+    "url": "https://underpassai.com"
+  },
+  "plugins": [
+    {
+      "name": "kmp",
+      "description": "Discover and operate KMP agent memory: wires the kernel-memory MCP server, teaches the ten moves, and diagnoses a broken setup.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/underpass-ai/kmp.git",
+        "path": "plugins/kmp",
+        "ref": "main"
+      }
+    },
+    {
+      "name": "made",
+      "description": "Design and run MADE ceremonies from your coding agent: wires the embedded deliberation engine over MCP, drafts ceremony YAML from intent, and runs it step by step.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/underpass-ai/made.git",
+        "path": "plugins/made",
+        "ref": "main"
+      }
+    }
+  ]
+}
