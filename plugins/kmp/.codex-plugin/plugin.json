@@ -1,6 +1,6 @@
 {
   "name": "kmp",
-  "version": "0.1.16+codex.20260825162753",
+  "version": "0.1.17+codex.20260825192743",
   "description": "Discover and operate KMP agent memory from Codex: wires the kmp MCP server, teaches the ten moves, and diagnoses a broken setup.",
   "author": {
     "name": "Underpass AI"
