@@ -1,7 +1,7 @@
 # Underpass AI plugins
 
-The plugin marketplace for [Underpass AI](https://underpassai.com). One source,
-both planes.
+The plugin marketplace for [Underpass AI](https://underpassai.com), with
+native catalogs for Claude Code and Codex.
 
 ```text
 /plugin marketplace add underpass-ai/plugins
@@ -9,19 +9,23 @@ both planes.
 /plugin install made@underpass
 ```
 
-For Codex CLI, which has no plugin system, each repository ships an installer
-script — see the links below.
+```bash
+codex plugin marketplace add underpass-ai/plugins
+codex plugin add kmp@underpass
+```
 
 ## What is here
 
-This repository contains **no plugin code**. It is a manifest that points at
-the plugin directory inside each product repository, so a plugin is always
-released and versioned by the repo that owns it.
+Claude Code reads `.claude-plugin/marketplace.json`, whose entries point at
+the plugin directory in each product repository. Codex reads
+`.agents/plugins/marketplace.json`; its local plugin source is packaged under
+`plugins/` because Codex marketplace entries resolve inside the marketplace
+snapshot.
 
-| Plugin | Lives in | What it gives your agent |
-|---|---|---|
-| `kmp` | [underpass-ai/kmp](https://github.com/underpass-ai/kmp/tree/main/plugins/kmp) | Navigable agent memory over MCP: the ten KMP moves, a skill that teaches when to reach for memory, and `/kmp:doctor` to diagnose a broken setup. |
-| `made` | [underpass-ai/made](https://github.com/underpass-ai/made/tree/main/plugins/made) | The MADE deliberation engine in process: design a ceremony from intent, publish it, and run it step by step. |
+| Plugin | Claude source | Codex source | What it gives your agent |
+|---|---|---|---|
+| `kmp` | [underpass-ai/kmp](https://github.com/underpass-ai/kmp/tree/main/plugins/kmp) | [`plugins/kmp`](./plugins/kmp) | Navigable agent memory over MCP: the ten KMP moves, a skill that teaches when to reach for memory, and a doctor to diagnose a broken setup. |
+| `made` | [underpass-ai/made](https://github.com/underpass-ai/made/tree/main/plugins/made) | Not cataloged yet | The MADE deliberation engine in process: design a ceremony from intent, publish it, and run it step by step. |
 
 Both plugins run their engine **in process**. Neither needs a service, a
 database or an API key to start.
@@ -41,9 +45,10 @@ GitHub Releases.
 
 ## Adding a plugin here
 
-Entries use a `git-subdir` source so the manifest never carries a copy of the
-plugin. Point it at the repository, the path inside it, and the ref to track.
-Nothing else in this repository needs to change when a plugin releases.
+For Claude Code, add a `git-subdir` entry that points at the owning product
+repository. For Codex, place the validated plugin under `plugins/<name>` and
+append a local entry to `.agents/plugins/marketplace.json` with installation,
+authentication and category policy.
 
 ## Legal
 
