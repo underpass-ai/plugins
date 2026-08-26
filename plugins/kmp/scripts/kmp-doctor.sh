@@ -288,7 +288,29 @@ else
       info "store format: $FORMAT ($ENGINE engine)"
     fi
     if [ -f "$STORE_FILE" ]; then
-      info "store size: $(du -h "$STORE_FILE" 2>/dev/null | cut -f1)"
+      STORE_FILES=("$STORE_FILE")
+      STORE_NEWEST_FILE="$STORE_FILE"
+      STORE_SIZE="$(du -h "$STORE_FILE" 2>/dev/null | cut -f1)"
+      if [ "$ENGINE" = "sqlite" ]; then
+        for SIDECAR in "$STORE_FILE-wal" "$STORE_FILE-shm"; do
+          if [ -f "$SIDECAR" ]; then
+            STORE_FILES+=("$SIDECAR")
+          fi
+        done
+        # The SHM file belongs to the physical store and counts towards its
+        # size, but readers update its WAL-index read marks. Only the database
+        # and WAL carry committed memory, so a read must not look like a write.
+        if [ -f "$STORE_FILE-wal" ] && [ "$STORE_FILE-wal" -nt "$STORE_NEWEST_FILE" ]; then
+          STORE_NEWEST_FILE="$STORE_FILE-wal"
+        fi
+        STORE_SIZE="$(du -ch "${STORE_FILES[@]}" 2>/dev/null | tail -1 | cut -f1)"
+      fi
+      STORE_WHEN="$(date -r "$STORE_NEWEST_FILE" '+%Y-%m-%d %H:%M' 2>/dev/null)"
+      if [ -z "$STORE_WHEN" ] && [ "$STORE_NEWEST_FILE" != "$STORE_FILE" ]; then
+        # A checkpoint can remove a sidecar between discovery and stat.
+        STORE_WHEN="$(date -r "$STORE_FILE" '+%Y-%m-%d %H:%M' 2>/dev/null)"
+      fi
+      info "store size: ${STORE_SIZE:-?}"
       HOLDER=""
       if command -v fuser >/dev/null 2>&1; then
         HOLDER="$(fuser "$STORE_FILE" 2>/dev/null | tr -s ' ')"
@@ -336,8 +358,6 @@ else
       else
         ok "store is free — no other process holds it"
       fi
-      STORE_SIZE="$(du -h "$STORE_FILE" 2>/dev/null | cut -f1)"
-      STORE_WHEN="$(date -r "$STORE_FILE" '+%Y-%m-%d %H:%M' 2>/dev/null)"
       if [ "$AREA_STATUS" = "ok" ]; then
         brief "${STORE_SIZE:-?} · ${ENGINE} · last written ${STORE_WHEN:-unknown}"
       fi
@@ -553,6 +573,10 @@ if command -v claude >/dev/null 2>&1 || [ "${KMP_DOCTOR_CLAUDE_MCP_LIST+x}" = x 
   else
     CLAUDE_MCP_LIST="$(env KMP_MCP_DATA_DIR="$PROBE_DIR" claude mcp list 2>/dev/null)"
   fi
+  # The plugin ships the server as `memory`, so Claude Code composes the id
+  # `plugin:kmp:memory` — the plugin segment carries the identity and the
+  # server segment says what it is. A hand-registered server is a flat
+  # `kmp`. Matching the `kmp` segment recognises both shapes.
   if host_list_has_server "$CLAUDE_MCP_LIST" kmp; then
     ok "Claude Code — kmp registered"
   elif host_list_has_server "$CLAUDE_MCP_LIST" kernel-memory; then
