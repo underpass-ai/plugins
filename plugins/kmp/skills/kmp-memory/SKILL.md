@@ -290,8 +290,12 @@ constraints, outcomes — each with coordinates and evidence.
 Never write transcripts. Memory is not a log of the conversation; it is the
 durable shape of the work. A transcript makes later traversal worthless.
 
-Use one `idempotency_key` per logical write. If a retry conflicts, the write
-was already applied — that is success, not an error to retry around.
+Use one `idempotency_key` per logical write. Replaying the same accepted write
+returns its success rather than duplicating memory. A `conflict` can also mean
+the store advanced before this attempt committed: follow the error message,
+rebase, and retry the same logical write with the same key when it says the
+conflict is retryable. A key already accepted with different content must not
+be reused.
 
 ## `observed_at` is the real clock, in UTC
 
@@ -434,6 +438,10 @@ something observed.
 
 Before committing a rich relation:
 
+- omit `current.ref` and `semantic_delta.ref` for new memory. Supply either
+  only to update an existing entry inside the same `about`; it must begin with
+  that exact about plus `:`, so never reuse a foreign ref surfaced by a
+  cross-about read;
 - inspect or traverse every existing target and name it in `read_context`;
 - choose the most specific relation supported by what you read;
 - make `why` mention the actual relationship between the two endpoints;
@@ -529,7 +537,7 @@ the closed set under `_meta."kmp/errorCodes"` with what each one means.
 | --- | --- |
 | `invalid_argument` | fix the arguments — retrying unchanged cannot work |
 | `not_found` | the memory is not in this store |
-| `conflict` | the write already landed under this idempotency key. **That is success**, not something to retry around |
+| `conflict` | inspect the message: retryable concurrency conflicts are safe to replay with the same key; a key accepted with different content must not be reused |
 | `unavailable` | the kernel was unreachable; the same call may work later |
 | `unknown_tool` | no such tool here |
 | `backend_error` | the kernel failed for a reason no argument can fix |
