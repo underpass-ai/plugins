@@ -252,7 +252,7 @@ else
       ok "data-dir self-ignore guard is present"
     else
       fail "$DATA_DIR/.gitignore is missing the '*' safety guard"
-      info "run a current KMP startup or migration command to restore the skeleton"
+      info "run a current KMP startup to restore the skeleton"
     fi
     if [ -d "$DATA_DIR/logs" ]; then
       ok "startup log directory is present"
@@ -260,21 +260,91 @@ else
       warn "$DATA_DIR/logs is missing — startup failures cannot be audited here"
     fi
 
-    # FORMAT_VERSION names the layout, which names the engine (ADR-018):
-    # 1 is redb, 2 is sqlite. The engine decides whether a second host can
-    # share this store, so say which one it is.
-    ENGINE="redb"
-    STORE_FILE="$DATA_DIR/store/kernel.redb"
-    if [ -f "$DATA_DIR/FORMAT_VERSION" ]; then
-      FORMAT="$(cat "$DATA_DIR/FORMAT_VERSION" 2>/dev/null | tr -d '[:space:]')"
-      case "$FORMAT" in
-        1) ENGINE="redb" ;;
-        2) ENGINE="sqlite"; STORE_FILE="$DATA_DIR/store/kernel.sqlite3" ;;
-        *) ENGINE="unknown" ;;
-      esac
-      info "store format: $FORMAT ($ENGINE engine)"
+    # FORMAT_VERSION names the layout, but it is not evidence that memory is
+    # absent. Discover physical engine files independently first: a missing,
+    # corrupt or newer stamp must never turn a real store into "empty".
+    REDB_STORE="$DATA_DIR/store/kernel.redb"
+    SQLITE_STORE="$DATA_DIR/store/kernel.sqlite3"
+    STORE_FILE=""
+    ENGINE=""
+    PHYSICAL_STORES=0
+    if [ -f "$REDB_STORE" ]; then
+      STORE_FILE="$REDB_STORE"; ENGINE="redb"
+      PHYSICAL_STORES=$((PHYSICAL_STORES + 1))
     fi
-    if [ -f "$STORE_FILE" ]; then
+    if [ -f "$SQLITE_STORE" ]; then
+      STORE_FILE="$SQLITE_STORE"; ENGINE="sqlite"
+      PHYSICAL_STORES=$((PHYSICAL_STORES + 1))
+    fi
+    if [ "$PHYSICAL_STORES" -gt 1 ]; then
+      fail "multiple engine files exist; refusing to guess which memory is live"
+      SESSION_USABLE=0
+      SESSION_REASON="the data dir contains both redb and sqlite store files"
+      info "$REDB_STORE"
+      info "$SQLITE_STORE"
+    fi
+
+    EXPECTED_STORE=""
+    EXPECTED_ENGINE=""
+    if [ -e "$DATA_DIR/FORMAT_VERSION" ]; then
+      if FORMAT="$(tr -d '[:space:]' < "$DATA_DIR/FORMAT_VERSION" 2>/dev/null)"; then
+        case "$FORMAT" in
+          1)
+            EXPECTED_ENGINE="redb"; EXPECTED_STORE="$REDB_STORE"
+            fail "store format 1 uses retired redb; this binary contains no reader"
+            SESSION_USABLE=0
+            SESSION_REASON="store format 1 requires the KMP 0.3.2 export bridge"
+            info "the source was left untouched"
+            info "export it with KMP 0.3.2, then import .kmp/memory.jsonl with current KMP"
+            ;;
+          2) EXPECTED_ENGINE="sqlite"; EXPECTED_STORE="$SQLITE_STORE" ;;
+          0)
+            fail "store format 0 is older than this binary supports"
+            SESSION_USABLE=0
+            SESSION_REASON="store format 0 needs a compatible export binary"
+            info "use a KMP binary that supports format 0 to export a portable bundle"
+            ;;
+          ''|*[!0-9]*)
+            fail "FORMAT_VERSION is corrupt (`${FORMAT:-empty}`); the store cannot open"
+            SESSION_USABLE=0
+            SESSION_REASON="FORMAT_VERSION is corrupt"
+            ;;
+          *)
+            fail "store format $FORMAT is not supported by this binary (newest: 2)"
+            SESSION_USABLE=0
+            SESSION_REASON="store format $FORMAT needs a different KMP binary"
+            info "upgrade the binary before opening or changing this memory"
+            offer "/kmp:setup" "the selected memory uses store format $FORMAT"
+            ;;
+        esac
+        if [ -n "$EXPECTED_ENGINE" ]; then
+          info "store format: $FORMAT ($EXPECTED_ENGINE engine)"
+        else
+          info "store format: ${FORMAT:-unreadable} (unsupported)"
+        fi
+      else
+        fail "FORMAT_VERSION cannot be read; the store cannot open"
+        SESSION_USABLE=0
+        SESSION_REASON="FORMAT_VERSION cannot be read"
+      fi
+    elif [ "$PHYSICAL_STORES" -gt 0 ]; then
+      fail "a store file exists but FORMAT_VERSION is missing"
+      SESSION_USABLE=0
+      SESSION_REASON="the memory layout has a store file but no FORMAT_VERSION"
+      info "the memory file is present and was left untouched"
+    else
+      info "store format: not stamped yet"
+    fi
+
+    if [ -n "$EXPECTED_STORE" ] && [ "$PHYSICAL_STORES" -gt 0 ] \
+        && [ "$STORE_FILE" != "$EXPECTED_STORE" ]; then
+      fail "FORMAT_VERSION selects $EXPECTED_ENGINE but the store file is $ENGINE"
+      SESSION_USABLE=0
+      SESSION_REASON="FORMAT_VERSION and the physical store engine disagree"
+      info "the memory file is present and was left untouched"
+    fi
+
+    if [ -n "$STORE_FILE" ]; then
       STORE_FILES=("$STORE_FILE")
       STORE_NEWEST_FILE="$STORE_FILE"
       STORE_SIZE="$(du -h "$STORE_FILE" 2>/dev/null | cut -f1)"
@@ -298,36 +368,22 @@ else
         STORE_WHEN="$(date -r "$STORE_FILE" '+%Y-%m-%d %H:%M' 2>/dev/null)"
       fi
       info "store size: ${STORE_SIZE:-?}"
-      HOLDER=""
-      if command -v fuser >/dev/null 2>&1; then
-        HOLDER="$(fuser "$STORE_FILE" 2>/dev/null | tr -s ' ')"
-      elif command -v lsof >/dev/null 2>&1; then
-        HOLDER="$(lsof -t "$STORE_FILE" 2>/dev/null | tr '\n' ' ')"
-      fi
-      if [ -n "$(printf '%s' "$HOLDER" | tr -d ' ')" ]; then
-        if [ "$ENGINE" = "sqlite" ]; then
+      if [ "$ENGINE" = "redb" ]; then
+        info "legacy redb bytes are inventory only; Doctor did not open or probe them"
+      else
+        HOLDER=""
+        if command -v fuser >/dev/null 2>&1; then
+          HOLDER="$(fuser "$STORE_FILE" 2>/dev/null | tr -s ' ')"
+        elif command -v lsof >/dev/null 2>&1; then
+          HOLDER="$(lsof -t "$STORE_FILE" 2>/dev/null | tr '\n' ' ')"
+        fi
+        if [ -n "$(printf '%s' "$HOLDER" | tr -d ' ')" ]; then
           # WAL-mode sqlite is shared by design: another holder is a
           # second host at work, not a conflict.
           ok "another process has this store open (pid$HOLDER) — sqlite shares it"
         else
-          # Single-writer contract (ADR-011). Checked by looking, never by
-          # opening: acquiring the lock to test it would be the very
-          # conflict this is meant to report.
-          warn "another process holds this store (pid$HOLDER)"
-          SESSION_USABLE=0
-          SESSION_REASON="redb store held by pid$HOLDER"
-          info "the redb engine is single-writer (ADR-011): a second host"
-          info "session on the same data dir gets no tools at all. Close that"
-          info "session, point this one at a different KMP_MCP_DATA_DIR, or"
-          info "move the store to SQLite. Close every host first, then run:"
-          info ""
-          info "  kmp-mcp migrate \"$DATA_DIR\" \"$DATA_DIR-sqlite\""
-          info ""
-          info "the source is left untouched and the destination carries a"
-          info "verified migration receipt. Point both hosts at the new path."
+          ok "store is free — no other process holds it"
         fi
-      else
-        ok "store is free — no other process holds it"
       fi
       if [ "$AREA_STATUS" = "ok" ]; then
         brief "${STORE_SIZE:-?} · ${ENGINE} · last written ${STORE_WHEN:-unknown}"
