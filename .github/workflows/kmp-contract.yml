@@ -1,0 +1,42 @@
+name: kmp-contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  kmp-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout marketplace
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: marketplace
+
+      - name: Resolve immutable KMP source
+        id: source
+        working-directory: marketplace
+        shell: bash
+        run: echo "ref=$(python3 scripts/ci/kmp-contract.py --print-source-ref)" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout immutable KMP source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: underpass-ai/kmp
+          ref: ${{ steps.source.outputs.ref }}
+          path: kmp-source
+
+      - name: Verify catalogs, copy and exact plugin tree
+        run: >-
+          python3 marketplace/scripts/ci/kmp-contract.py
+          --source-root kmp-source/plugins/kmp
