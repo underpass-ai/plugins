@@ -8,6 +8,7 @@ import hashlib
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 
@@ -21,6 +22,8 @@ EXPECTED_CLAUDE_SOURCE = {
     "path": "plugins/kmp",
 }
 EXPECTED_CODEX_SOURCE = {"source": "local", "path": "./plugins/kmp"}
+KMP_REMOTE = "https://github.com/underpass-ai/kmp.git"
+COMMIT_SHA = re.compile(r"[0-9a-f]{40}")
 RETIRED_COUNT = re.compile(
     r"\b(?:ten|10)(?:\s+kmp)?\s+(?:mcp\s+)?(?:moves|tools)\b",
     re.I,
@@ -59,7 +62,50 @@ def kmp_entry(path: pathlib.Path) -> dict[str, object]:
     return matches[0]
 
 
-def claude_source() -> tuple[dict[str, object], str]:
+def mirrored_version() -> str:
+    versions = set()
+    for relative in (".claude-plugin/plugin.json", ".codex-plugin/plugin.json"):
+        version = read_json(PLUGIN / relative).get("version")
+        if not isinstance(version, str) or not version:
+            raise SystemExit(f"{display_path(PLUGIN / relative)} has no version")
+        versions.add(version.split("+", 1)[0])
+    if len(versions) != 1:
+        raise SystemExit(f"mirrored KMP host manifests disagree on version: {sorted(versions)}")
+    return versions.pop()
+
+
+def annotated_tag_commit(ref: str) -> str:
+    result = subprocess.run(
+        [
+            "git",
+            "ls-remote",
+            "--tags",
+            KMP_REMOTE,
+            f"refs/tags/{ref}",
+            f"refs/tags/{ref}^{{}}",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or "tag lookup failed"
+        raise SystemExit(f"could not resolve KMP source tag {ref}: {detail}")
+    refs = {}
+    for line in result.stdout.splitlines():
+        fields = line.split()
+        if len(fields) == 2 and COMMIT_SHA.fullmatch(fields[0]):
+            refs[fields[1]] = fields[0]
+    tag_ref = f"refs/tags/{ref}"
+    if tag_ref not in refs:
+        raise SystemExit(f"KMP source tag {ref} does not exist")
+    peeled = refs.get(f"{tag_ref}^{{}}")
+    if peeled is None:
+        raise SystemExit(f"KMP source tag {ref} must be annotated")
+    return peeled
+
+
+def claude_source() -> tuple[dict[str, object], str, str]:
     entry = kmp_entry(CLAUDE_LISTING)
     source = entry.get("source")
     if not isinstance(source, dict):
@@ -68,10 +114,11 @@ def claude_source() -> tuple[dict[str, object], str]:
     if stable != EXPECTED_CLAUDE_SOURCE:
         raise SystemExit("Claude kmp entry no longer resolves underpass-ai/kmp/plugins/kmp")
     ref = source.get("ref")
-    if not isinstance(ref, str) or not re.fullmatch(r"[0-9a-f]{40}", ref):
-        raise SystemExit("Claude kmp source must pin an immutable 40-character commit SHA")
+    expected_ref = f"v{mirrored_version()}"
+    if ref != expected_ref:
+        raise SystemExit(f"Claude kmp source must pin clonable immutable release tag {expected_ref}")
     verify_description("Claude marketplace entry", entry.get("description"))
-    return entry, ref
+    return entry, ref, annotated_tag_commit(ref)
 
 
 def verify_description(label: str, value: object) -> None:
@@ -113,12 +160,25 @@ def verify_tree(source_root: pathlib.Path) -> None:
 
 
 def verify_contract(source_root: pathlib.Path) -> None:
-    _, ref = claude_source()
+    _, ref, expected_commit = claude_source()
     codex = kmp_entry(CODEX_LISTING)
     if codex.get("source") != EXPECTED_CODEX_SOURCE:
         raise SystemExit("Codex kmp entry no longer resolves the reviewed plugins/kmp snapshot")
 
     verify_tree(source_root)
+
+    checked_out_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=source_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if checked_out_commit != expected_commit:
+        raise SystemExit(
+            f"Claude clone checked out {checked_out_commit or 'no commit'}, "
+            f"not annotated tag commit {expected_commit}"
+        )
 
     versions = set()
     for root in (PLUGIN, source_root):
@@ -159,7 +219,7 @@ def main() -> None:
     parser.add_argument("--source-root", type=pathlib.Path)
     parser.add_argument("--print-source-ref", action="store_true")
     args = parser.parse_args()
-    _, ref = claude_source()
+    _, ref, _ = claude_source()
     if args.print_source_ref:
         print(ref)
         return
