@@ -29,12 +29,15 @@ jobs:
         shell: bash
         run: echo "ref=$(python3 scripts/ci/kmp-contract.py --print-source-ref)" >> "${GITHUB_OUTPUT}"
 
-      - name: Checkout immutable KMP source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          repository: underpass-ai/kmp
-          ref: ${{ steps.source.outputs.ref }}
-          path: kmp-source
+      # This is the operation Claude Code's git-subdir installer performs.
+      # Keeping it literal prevents a commit SHA (fetchable by actions/checkout
+      # but invalid for git clone --branch) from passing the marketplace gate.
+      - name: Clone the KMP source exactly as Claude Code does
+        run: >-
+          git clone --depth 1
+          --branch "${{ steps.source.outputs.ref }}"
+          https://github.com/underpass-ai/kmp.git
+          kmp-source
 
       - name: Verify catalogs, copy and exact plugin tree
         run: >-
