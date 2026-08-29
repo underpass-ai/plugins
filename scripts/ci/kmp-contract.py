@@ -74,13 +74,17 @@ def mirrored_version() -> str:
     return versions.pop()
 
 
-def annotated_tag_commit(ref: str) -> str:
+def release_commit(
+    ref: str,
+    repository: str = KMP_REMOTE,
+    allow_unpublished_tag: bool = False,
+) -> tuple[str, bool]:
     result = subprocess.run(
         [
             "git",
             "ls-remote",
             "--tags",
-            KMP_REMOTE,
+            repository,
             f"refs/tags/{ref}",
             f"refs/tags/{ref}^{{}}",
         ],
@@ -98,14 +102,30 @@ def annotated_tag_commit(ref: str) -> str:
             refs[fields[1]] = fields[0]
     tag_ref = f"refs/tags/{ref}"
     if tag_ref not in refs:
-        raise SystemExit(f"KMP source tag {ref} does not exist")
+        if not allow_unpublished_tag:
+            raise SystemExit(f"KMP source tag {ref} does not exist")
+        main = subprocess.run(
+            ["git", "ls-remote", repository, "refs/heads/main"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        fields = main.stdout.split()
+        commit = fields[0] if main.returncode == 0 and fields else ""
+        if not COMMIT_SHA.fullmatch(commit):
+            detail = main.stderr.strip() or "main ref was not found"
+            raise SystemExit(f"could not resolve unpublished KMP source {repository}: {detail}")
+        return commit, False
     peeled = refs.get(f"{tag_ref}^{{}}")
     if peeled is None:
         raise SystemExit(f"KMP source tag {ref} must be annotated")
-    return peeled
+    return peeled, True
 
 
-def claude_source() -> tuple[dict[str, object], str, str]:
+def claude_source(
+    allow_unpublished_tag: bool = False,
+    repository: str = KMP_REMOTE,
+) -> tuple[dict[str, object], str, str, bool]:
     entry = kmp_entry(CLAUDE_LISTING)
     source = entry.get("source")
     if not isinstance(source, dict):
@@ -118,7 +138,8 @@ def claude_source() -> tuple[dict[str, object], str, str]:
     if ref != expected_ref:
         raise SystemExit(f"Claude kmp source must pin clonable immutable release tag {expected_ref}")
     verify_description("Claude marketplace entry", entry.get("description"))
-    return entry, ref, annotated_tag_commit(ref)
+    commit, published = release_commit(ref, repository, allow_unpublished_tag)
+    return entry, ref, commit, published
 
 
 def verify_description(label: str, value: object) -> None:
@@ -159,8 +180,14 @@ def verify_tree(source_root: pathlib.Path) -> None:
     )
 
 
-def verify_contract(source_root: pathlib.Path) -> None:
-    _, ref, expected_commit = claude_source()
+def verify_contract(
+    source_root: pathlib.Path,
+    allow_unpublished_tag: bool = False,
+    repository: str = KMP_REMOTE,
+) -> None:
+    _, ref, expected_commit, published = claude_source(
+        allow_unpublished_tag, repository
+    )
     codex = kmp_entry(CODEX_LISTING)
     if codex.get("source") != EXPECTED_CODEX_SOURCE:
         raise SystemExit("Codex kmp entry no longer resolves the reviewed plugins/kmp snapshot")
@@ -211,21 +238,37 @@ def verify_contract(source_root: pathlib.Path) -> None:
     if RETIRED_COUNT.search(readme):
         raise SystemExit("marketplace README still contains retired whole-surface copy")
 
-    print(f"KMP marketplace contract passed: {versions.pop()}, 13 tools, source {ref}")
+    source_state = "published annotated tag" if published else "unpublished tag bound to KMP main"
+    print(
+        f"KMP marketplace contract passed: {versions.pop()}, 13 tools, "
+        f"source {ref} ({source_state})"
+    )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-root", type=pathlib.Path)
     parser.add_argument("--print-source-ref", action="store_true")
+    parser.add_argument("--allow-unpublished-tag", action="store_true")
+    parser.add_argument(
+        "--kmp-repository",
+        default=KMP_REMOTE,
+        help="override the KMP Git remote for contract tests",
+    )
     args = parser.parse_args()
-    _, ref, _ = claude_source()
+    _, ref, _, _ = claude_source(
+        args.allow_unpublished_tag, args.kmp_repository
+    )
     if args.print_source_ref:
         print(ref)
         return
     if args.source_root is None:
         parser.error("--source-root is required unless --print-source-ref is used")
-    verify_contract(args.source_root)
+    verify_contract(
+        args.source_root,
+        args.allow_unpublished_tag,
+        args.kmp_repository,
+    )
 
 
 if __name__ == "__main__":

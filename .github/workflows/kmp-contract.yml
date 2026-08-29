@@ -23,23 +23,50 @@ jobs:
         with:
           path: marketplace
 
+      - name: Exercise release-ref regression fixtures
+        working-directory: marketplace
+        run: python3 scripts/ci/test-kmp-release-ref.py
+
       - name: Resolve immutable KMP source
         id: source
         working-directory: marketplace
         shell: bash
-        run: echo "ref=$(python3 scripts/ci/kmp-contract.py --print-source-ref)" >> "${GITHUB_OUTPUT}"
+        run: |
+          ref="$(python3 scripts/ci/kmp-contract.py --print-source-ref --allow-unpublished-tag)"
+          if git ls-remote --exit-code --tags https://github.com/underpass-ai/kmp.git \
+              "refs/tags/${ref}" >/dev/null 2>&1; then
+            echo "checkout_ref=${ref}" >> "${GITHUB_OUTPUT}"
+            echo "published=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "checkout_ref=main" >> "${GITHUB_OUTPUT}"
+            echo "published=false" >> "${GITHUB_OUTPUT}"
+          fi
+          echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
 
       # This is the operation Claude Code's git-subdir installer performs.
       # Keeping it literal prevents a commit SHA (fetchable by actions/checkout
       # but invalid for git clone --branch) from passing the marketplace gate.
       - name: Clone the KMP source exactly as Claude Code does
+        if: steps.source.outputs.published == 'true'
         run: >-
           git clone --depth 1
           --branch "${{ steps.source.outputs.ref }}"
           https://github.com/underpass-ai/kmp.git
           kmp-source
 
+      # Before publication there is deliberately no cloneable release tag.
+      # KMP main is the only commit that release.sh may tag, so reviewing that
+      # exact tree keeps the public catalog on the previous installable release.
+      - name: Clone the reviewed unpublished KMP source
+        if: steps.source.outputs.published == 'false'
+        run: >-
+          git clone --depth 1
+          --branch "${{ steps.source.outputs.checkout_ref }}"
+          https://github.com/underpass-ai/kmp.git
+          kmp-source
+
       - name: Verify catalogs, copy and exact plugin tree
         run: >-
           python3 marketplace/scripts/ci/kmp-contract.py
+          --allow-unpublished-tag
           --source-root kmp-source/plugins/kmp
