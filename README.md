@@ -24,7 +24,7 @@ snapshot.
 
 | Plugin | Claude source | Codex source | What it gives your agent |
 |---|---|---|---|
-| `kmp` | [underpass-ai/kmp](https://github.com/underpass-ai/kmp/tree/main/plugins/kmp) | [`plugins/kmp`](./plugins/kmp) | Navigable agent memory over MCP: the ten KMP moves, a skill that teaches when to reach for memory, and a doctor to diagnose a broken setup. |
+| `kmp` | [underpass-ai/kmp](https://github.com/underpass-ai/kmp/tree/main/plugins/kmp) | [`plugins/kmp`](./plugins/kmp) | Local-first agent memory over thirteen MCP tools: ten memory moves plus three shared ChronoLoom view tools, with routing and setup diagnostics. |
 | `made` | [underpass-ai/made](https://github.com/underpass-ai/made/tree/main/plugins/made) | Not cataloged yet | The MADE deliberation engine in process: design a ceremony from intent, publish it, and run it step by step. |
 
 Both plugins run their engine **in process**. Neither needs a service, a
