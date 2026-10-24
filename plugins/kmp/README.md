@@ -1,19 +1,24 @@
 # KMP plugin — discovery for agents and humans
 
 <!-- kmp:public-overview:begin -->
-KMP gives Codex and Claude Code local-first memory that preserves what
-happened, when and why. It stores decisions and evidence, not transcripts,
-on embedded SQLite, and exposes them through ten memory tools plus three
-semantic view tools over a shared ChronoLoom view.
+KMP gives Codex, Claude Code and Hermes Agent local-first memory that preserves
+what happened, when and why. It stores decisions and evidence, not transcripts,
+on embedded SQLite. Memory tools retrieve and audit that evidence, semantic
+view tools guide a shared ChronoLoom view, and a progressive guide teaches
+the agent how to use them. The running server’s `tools/list` defines the
+current tool surface.
 
 Ask **“Show me the memory behind this decision.”** The agent retrieves the
 evidence, opens ChronoLoom at the relevant moment and lights up the proof path.
-You can click, filter, pan, undo or take control of the same view at any time.
+ChronoLoom names who is guiding, shows why the agent moved, and lets you take
+control without losing the frame or its undo. A shared time window crosses real
+3D about layers; a flat camera shows the same memory, with labels as filters.
 <!-- kmp:public-overview:end -->
 
-Without this plugin, using KMP means installing a binary, copying an MCP
-registration into your host's config, and pasting a context-recovery playbook
-into `CLAUDE.md` or `AGENTS.md` by hand. The plugin does all three.
+The native plugin supplies skills, host discovery and one MCP registration
+for Codex and Claude Code. Setup installs the matching engine. Hermes Agent
+uses the native lifecycle described below. Project instructions can opt into
+memory routing; setup does not edit `AGENTS.md` or `CLAUDE.md`.
 
 ## Install
 
@@ -25,24 +30,22 @@ scripts. Verify, unpack, and point the host at the resulting `kmp/`
 directory:
 
 ```bash
-sha256sum -c kmp-plugin-<version>-<os>-<arch>.sha256
+sha256sum -c kmp-plugin-<version>-<os>-<arch>.tar.gz.sha256
 tar -xzf kmp-plugin-<version>-<os>-<arch>.tar.gz
 ```
 
-Codex reads `.codex-plugin/plugin.json` and starts the installed `kmp-mcp`
-from its inline MCP declaration. Claude Code reads
+Codex reads `.codex-plugin/plugin.json` and starts `kmp-mcp` from `PATH`.
+Claude Code reads
 `.claude-plugin/plugin.json` and starts through `.mcp.json` →
 `scripts/run-embedded-mcp.sh`, which can prefer the binary bundled in a
-release package. On Windows hosts, register `scripts\run-embedded-mcp.cmd`
-instead. To build the package from a checkout:
+release package. Put the bundled `bin/` on `PATH` for Codex. On Windows hosts,
+Claude uses `scripts\run-embedded-mcp.cmd`. To build the package from a checkout:
 `bash scripts/plugin/package-kmp-plugin.sh`.
 
-**Claude Code** — native install from the marketplace. The manifest lives in
-[underpass-ai/plugins](https://github.com/underpass-ai/plugins), which carries
-both Underpass plugins, so the same source also offers `made@underpass`:
+**Claude Code** — native install from KMP's co-located stable marketplace:
 
 ```
-/plugin marketplace add underpass-ai/plugins
+/plugin marketplace add underpass-ai/kmp@marketplace
 /plugin install kmp@underpass
 ```
 
@@ -56,18 +59,19 @@ the checksum published beside it, and no Rust toolchain is involved.
 /kmp:setup
 ```
 
-The launcher looks for `bin/kmp-mcp` first, so a release bundle keeps its
-pinned binary, and otherwise falls back to `kmp-mcp` on `PATH` — which is
-where `/kmp:setup` puts it. If neither exists the launcher fails with an
-explicit message naming both places it looked.
+The launcher resolves an engine matching the plugin version, checking the
+bundled engine and the engine on `PATH`. Claude-only setup installs the
+plugin-owned engine; Codex needs its matching engine on `PATH`. An explicit
+`KMP_MCP_BIN` overrides resolution. If no matching engine is available, the
+launcher stops and asks you to run setup.
 
-`cargo install kmp-mcp` remains the fallback for a platform with no published
+`cargo install kmp-mcp --locked` remains the fallback for a platform with no published
 asset, and a release package remains the way to install a pinned pair with no
 download step at all.
 
 ### Catching up
 
-The session-start hook checks GitHub Releases at most once per day. It is
+The Claude Code session-start hook checks GitHub Releases at most once per day. It is
 silent when the plugin and engine are current, and fail-open when offline. If
 both halves are two releases behind together, it still notices — equality is
 not mistaken for freshness — and offers one command:
@@ -76,8 +80,9 @@ not mistaken for freshness — and offers one command:
 /kmp:setup
 ```
 
-Setup runs `scripts/kmp-update.sh`: the host's native plugin update plus the
-checksummed engine from the same release. Codex uses the native `kmp-setup`
+Setup bootstraps through `scripts/kmp-install-binary.sh`; updates use
+`scripts/kmp-update.sh`. The native lifecycle aligns the host plugin and
+checksummed engine with the requested release. Codex uses the native `kmp-setup`
 skill; it does not copy prompts, edit `AGENTS.md`, or add global MCP wiring.
 Both paths finish with one restart because a running host keeps the MCP
 inventory it started with.
@@ -87,60 +92,137 @@ PATH-based MCP declaration, so it does not need a second registration in
 `~/.codex/config.toml`:
 
 ```bash
-codex plugin marketplace add underpass-ai/plugins
+codex plugin marketplace add underpass-ai/kmp --ref marketplace
 codex plugin add kmp@underpass
 ```
 
 Run the native `kmp-setup` skill to install the matching engine and diagnose
 the result. Re-running it preserves the plugin as the single MCP owner.
 
-Standalone Codex wiring remains available as an explicit advanced path. It
-owns a global MCP table, copied prompts and a fenced AGENTS section, and must
-not be combined with an enabled KMP plugin:
+The native plugin is the only supported Codex owner. Do not add a second
+global `mcp_servers.kmp` table or copy prompts and AGENTS fragments beside it.
+
+**Hermes Agent** — no plugin marketplace; the native lifecycle registers the
+engine through Hermes' own CLI and mirrors the `kmp-*` skills into
+`$HERMES_HOME/skills`:
 
 ```bash
-bash scripts/mcp/install-kmp-plugin.sh --codex --standalone
+kmp-mcp setup --hermes
 ```
 
-The script works outside a checkout too, fetching what it needs from the
-repository. Pass `--dry-run` to preview its changes.
+That runs `hermes mcp add kmp --command kmp-mcp` (answering its one
+tool-enable prompt non-interactively) and copies the skill directories where
+Hermes scans for them. Finish with a Hermes restart so the MCP tools load —
+the same one-restart rule as Codex and Claude Code. `kmp-mcp doctor`
+inventories Hermes as a peer host: registration owner, skills present and
+the engine proof from `PATH`.
+
+**Pi coding agent** — Pi has no native MCP and no plugin marketplace. KMP
+reaches Pi through the `pi-runtime` Pi package, which `underpass setup`
+installs (`pi install …`); the KMP lifecycle never installs Pi packages. Once
+the package is present, converge the skills and the shared engine:
+
+```bash
+kmp-mcp setup --pi
+```
+
+The Pi agent home is resolved the way Pi resolves it: `$PI_CODING_AGENT_DIR`
+(empty counts as unset, a leading `~` expands to `$HOME`), otherwise
+`~/.pi/agent`. The registration evidence is the `pi-runtime` entry under
+`packages` in its `settings.json`; a package filter that excludes
+`src/adapters/inbound/pi/entry/kmp.ts` reports KMP as disabled.
+
+- `setup --pi` fails unless that package is registered and enabled, and
+  points to `underpass setup`.
+- A plain `kmp-mcp setup` or `kmp-mcp update` (no host flag) never fails
+  because of Pi: when the package is missing, its KMP extension is excluded,
+  or `settings.json` is unreadable — including after an earlier run converged
+  Pi — it converges the other hosts and reports Pi as `skipped` with a `warning` in the
+  receipt.
+- Skills are mirrored into `<Pi home>/skills` only when `kmp-mcp` runs from a
+  source checkout; released binaries only verify the registration and do not
+  copy skills. This is the same limitation as Hermes.
+
+The package's extension runs `kmp-mcp` from `PATH`, so `kmp-mcp doctor`
+inventories Pi as a peer host with the same engine proof as Codex and Hermes.
+
+### Initialize the selected store
+
+After setup and the host restart, ask Codex to run `kmp-guide`, or run
+`/kmp:guide` in Claude Code. This explicitly synchronizes the installed agent
+and human guides into the selected memory store. Setup alone installs the
+assets without writing a store. A fresh store can therefore return
+`GUIDE_UNAVAILABLE` until this step is complete. Repeat guide synchronization
+when changing stores or when an upgraded guide needs to be loaded.
 
 ### Agent routing policy
 
 `kmp-mcp config` shows the policy agents receive at MCP initialization and the
-file that owns it. With no file, genuinely semantic `kmp_ask` calls get one
-bounded English retry after the user's-language question returns `UNKNOWN`.
-Configure a different ordered list during setup with:
+file that owns it.
+
+The policy opens with a gate. By default memory is **opt-in**: an agent calls a
+kmp tool when the user asks for KMP or its memory, when a kmp skill or command
+runs, or when the project's own instructions opt in — and otherwise makes no
+call. Everything after the gate governs a route already underway. An operator
+who wants known work to enter through `kmp_wake` unprompted asks for it:
 
 ```bash
-kmp-mcp config ask-fallback-languages en,fr
-# or disable retries
-kmp-mcp config ask-fallback-languages none
+kmp-mcp config memory-routing always
+# or back to opt-in
+kmp-mcp config memory-routing on-request
 ```
 
-Fallback tags whose primary language is `zh`, `ja`, or `th` are rejected until
-Ask supports word segmentation for those scripts. Storage remains byte-exact;
-word-based semantic retrieval in those languages is not supported yet.
+A semantic question is asked in the kernel's search language: the agent
+renders it in plain English, keeps every number, identifier and acronym the
+user wrote, and passes the user's own words as `asked_as`. The kernel searches
+the rendering as given, echoes `asked_as` on the answer, and warns when the
+rendering dropped an identifier or leans to another language. If the English
+question returns `UNKNOWN`, the agent re-asks once in the user's own words and
+stops. With a lexical-bridge table beside the store, `kmp_ask` also crosses
+languages inside the kernel and names the word pairs that carried a citation.
+There is no language setting to configure.
+
+A writer can also attach an English rendering of a memory as the reserved
+entry metadata key `summary_en`. `kmp_ask` searches it and never cites it, so
+an English question reaches Spanish memory and the citation stays the Spanish
+text byte for byte. `kmp_ingest` warns about a summary the lint refuses —
+wrong language, too thin, a copy of the text, a dropped identifier — and
+ranking makes the same reading, so such a summary carries nothing. A citation
+the summary carried says so: `matched_via: summary`, with the question's words
+the rendering supplied in `summary_terms`. `kmp_write_memory` takes it as
+`memories[].summary_en`, and a strict write requires it when the memory is not
+written in English. Older memories that owe one are listed by `kmp-mcp
+summaries pending` and attached with `search_summaries`.
+
+Questions in Chinese, Japanese or Thai are not segmented by word yet. Storage
+remains byte-exact; word-based semantic retrieval in those scripts is not
+supported.
 
 The fallback translates only the query. The answer follows the user's
 language; evidence text, refs, relation `why`, and source metadata remain
 byte-for-byte as stored. Temporal requests such as “yesterday” or a release
 window bypass semantic Ask: the agent resolves the user's timezone, navigates
-the half-open UTC interval and consumes every page. It captures the inclusive
-start with `kmp_goto` before the strictly-after `kmp_forward`, merges refs and
-excludes the end. Setup and upgrades preserve the configured list.
+the half-open UTC interval `[start, end)` and consumes every page. Pass the
+interval directly to temporal navigation and follow the returned continuation;
+the start is included and the end is excluded. A semantic question that merely carries a date — why
+something was decided in March — is one `kmp_ask` with that interval as
+`interval`, or the instant as `as_of`: the kernel admits only what fell
+inside, reads supersession and expiry as they stood then, and an `UNKNOWN`
+names the nearest match outside the span.
 
-Setup and update also sync two versioned guide memories from one manifest.
-`guide:kmp-agent` explains every live verb to the agent; `guide:kmp` is the
-short human path opened visually with `/kmp:guide`. The sync is deterministic:
-an exact rerun adds no events and an update does not touch project memory.
+Setup and update install the versioned guide assets but never select or write
+a memory store. `/kmp:guide` performs the separate, explicit sync:
+`guide:kmp-agent` explains every live verb to the agent and `guide:kmp` is the
+short human path. The sync is deterministic, but it writes to the selected
+store. Check the selected store before synchronizing.
 
 ## What you get
 
 ### For the agent — the `kmp-memory` skill
 
-Loads when the work continues something earlier, or when a decision worth
-remembering is reached. It carries the operating doctrine:
+Use it after the routing gate opens: a request for KMP or its memory, a KMP
+workflow, project instructions, or the configured always-on policy. It carries
+the operating doctrine:
 
 - **recover before re-deriving** — `kmp_wake {about}` before reading files
   to reconstruct context that may already be stored;
@@ -157,18 +239,19 @@ The skill points at `tools/list` as the authority on the relation vocabulary,
 because that catalog is generated from the kernel's own writer spec and moves
 with the kernel. The skill teaches the shape; the schema carries the truth.
 
-Setup also synchronizes `guide:kmp-agent`, a versioned operating guide inside
-KMP itself. Its explicit verb cards say when to use a move, when not to, the
-minimum input, the expected result and the normal next move. The separate
-`guide:kmp` is for people and opens visually in ChronoLoom; it is not a shorter
-set of agent instructions.
+`kmp_guide` starts with a brief capability map and a persistent agent identity
+with a random display name. Open one worked card by topic and consult its
+extended verb when needed. Context resets preserve identity; delivery records
+mean guidance was served, not learned. Agent metadata stays outside memory
+retrieval. The explicit `/kmp:guide` sync installs the versioned lessons in KMP.
+The separate `guide:kmp` is for people and opens visually in ChronoLoom.
 
 The payoff appears on the read path: `kmp_wake` reconstructs the causal
 spine, `kmp_ask` can keep the right citation when the question is
 paraphrased, and `kmp_trace` / `kmp_inspect` expose the original
 rationale and proof verbatim. KMP uses what the writer supplied; it never
 generates a missing `why`. See
-[Why the `why` matters](skills/kmp-memory/SKILL.md#why-the-why-matters) for the
+[Relations and their evidence](guide/topics/relations.md) for the
 field-by-field model, safe fallbacks and worked examples.
 
 ### For you — ten commands
@@ -181,16 +264,16 @@ field-by-field model, safe fallbacks and worked examples.
 | `/kmp:moves` | The memory and ChronoLoom moves, read from the live surface when reachable |
 | `/kmp:guide` | Syncs the agent guide, then runs `open:guide` on the separate human path in ChronoLoom |
 | `/kmp:catchup` | What changed since you last looked, from the event log |
-| `/kmp:save` | Commits this project's memory to the repository, and shows the diff |
+| `/kmp:save` | Exports this project's maintained memory bundle and shows the diff; does not create a Git commit |
 | `/kmp:restore` | Loads the memory committed in the repository back into the store |
 | `/kmp:revert` | Reverts a decision without deleting it, so both states survive |
-| `/kmp:uninstall` | Previews whole-install or one-store removal, refuses live owners, protects memory first, and only applies when explicitly asked |
+| `/kmp:uninstall` | Previews whole-install, one-store or one-engine removal, names the host still holding a piece, protects memory first, and only applies when explicitly asked |
 
-Codex gets all ten as native `kmp-setup`, `kmp-doctor` and so on. Standalone
-Codex keeps the equivalent `/kmp-*` prompts. Claude Code keeps `/kmp:*`
-commands. [`capabilities.json`](capabilities.json) is the machine-checked
-inventory that maps each workflow to its owner and exposure; the ten memory
-tools sit inside the separate thirteen-tool MCP contract. [VOICE.md](VOICE.md)
+Codex gets all ten as native `kmp-setup`, `kmp-doctor` and so on. Claude Code
+keeps `/kmp:*` commands. Copied standalone Codex prompts are retired; use the
+native plugin as the single owner. [`capabilities.json`](capabilities.json) is the machine-checked
+inventory that maps each workflow to its owner and exposure. The live
+`tools/list` catalogue defines the MCP tools for the installed version. [VOICE.md](VOICE.md)
 remains the source of truth
 for how the host workflows talk.
 
@@ -203,15 +286,20 @@ there. It separates them:
 - **binary** — installed, on `PATH`, and its version;
 - **backend** — embedded, grpc or fixture. It flags `fixture` loudly: those
   responses look real and are canned;
-- **data directory** — which one wins under the ADR-012 resolution order
-  (`KMP_MCP_DATA_DIR` → project `.kernel/` → XDG fallback), and why;
+- **data directory** — which one wins under the resolution order
+  (`KMP_MCP_DATA_DIR` → the selection saved with `kmp-mcp config
+  memory-store` → project `.kernel/` → XDG fallback), and why;
 - **tool surface** — a real `tools/list` over stdio, counting what answers;
-- **host registration** — whether Claude Code and Codex actually have it.
+- **host registration** — three separate facts, never collapsed into one: the
+  plugin is installed and enabled, the engine binary declares its tools when
+  run directly, and a host reports a live MCP connection. Where no live probe
+  ran, it says *unverified* rather than usable — a registration in an
+  inventory is not a conversation that can call a tool.
 
-For Codex it also distinguishes plugin-managed from standalone wiring. If an
-enabled plugin and a global `mcp_servers.kmp` table both claim the server, the
-doctor names both owners and the global store-affecting environment instead of
-declaring the setup healthy.
+For Codex it also detects obsolete global wiring. If an enabled plugin and a
+global `mcp_servers.kmp` table both claim the server, Doctor names both owners
+and the global store-affecting environment instead of declaring the setup
+healthy.
 
 Two failures it names rather than leaving you to guess: an unsupported store
 format, which current KMP detects but deliberately does not open — Doctor
@@ -229,10 +317,12 @@ bash plugins/kmp/scripts/kmp-doctor.sh
 ## Backends
 
 The plugin registers the **embedded** backend: the kernel runs inside the
-binary, storage is a local `.kernel/` directory per project, no
-infrastructure. For a shared deployed kernel, point the server at it with
-`KMP_KERNEL_GRPC_ENDPOINT` instead — the tool surface is identical by
-construction, so nothing else changes.
+binary, with a local SQLite store selected by the precedence described above.
+For a shared deployed kernel, select the gRPC backend and configure
+`KMP_KERNEL_GRPC_ENDPOINT` and the deployment credentials. Core memory calls
+share the public contract, but backend support has limits: the summaries audit
+is unavailable over gRPC, and the embedded loopback viewer requires the local
+backend. See the [enterprise guide](../../docs/enterprise/README.md).
 
 See [Embedded KMP](https://github.com/underpass-ai/kmp/blob/main/docs/embedded/README.md)
 for the current local mode, storage and maintenance contract.

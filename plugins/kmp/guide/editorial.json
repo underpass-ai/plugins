@@ -12,95 +12,480 @@
           "id": "overview",
           "kind": "instruction",
           "depth": "basic",
-          "text": "KMP agent guide. Treat KMP as evidence-backed graph-temporal memory, not a model and not a transcript store. Choose a verb from the user's intent, copy abouts and refs byte-for-byte, and let each result select the next verb.",
-          "evidence": "This is the agent-only operating contract shipped with the KMP plugin."
+          "evidence": "The agent entry routes first-time users to the persistent guide scheme, with Markdown as an alternative entry and extended lessons on demand.",
+          "text_file": "agent-entry.md"
+        },
+        {
+          "id": "gate:invocation",
+          "kind": "instruction",
+          "depth": "basic",
+          "evidence": "Initialize carries common activation and routing guidance; tools teach their specific operation and this node expands how to choose and continue a route. Temporal response pages recover one selected packet before executable navigation traverses history outside it. Conditional input schemas keep the shared argument object visible while preserving initial-call requirements and continuation-only validation. Explicit native tool annotations distinguish persisted operational metadata, replacement of current projections, retained event history and bounded memory/viewer scope.",
+          "text_file": "topics/routing.md",
+          "guide_title": "Choose and continue a memory route"
         },
         {
           "id": "verb:wake",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB wake. Use kmp_wake before re-deriving known work. Do not use it as an all-abouts search. Minimum input: the exact about. Expect: compact current state, causal spine, open loops, next actions and a resume cursor. Next: inspect or trace consequential refs; use the cursor to move forward when catching up.",
-          "evidence": "The live kmp_wake contract returns an about-scoped continuation packet and resume cursor."
+          "evidence": "The live Wake response preserves scope and returns complete continuation, core restoration and cursor recovery calls. Per-section remaining counts expose unread expansion without asserting sufficiency.",
+          "text_file": "verbs/wake.md",
+          "guide_title": "Resume known work"
         },
         {
           "id": "verb:ask",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB ask. Use kmp_ask for a genuinely semantic question that stored evidence can answer. Do not use it for yesterday, since, current, latest, before or after. Minimum input: exact about and natural-language question. Expect: cited stored text or UNKNOWN. Next: inspect a relied-on ref, trace a relied-on connection, or stop honestly at UNKNOWN after the bounded language policy.",
-          "evidence": "The live kmp_ask contract retrieves stored evidence and never generates a fallback answer."
+          "text": "VERB ask. Use kmp_ask for a semantic question that stored evidence can answer. To enumerate a period — yesterday, since, what changed, current or latest — navigate time instead. When the semantic question carries a date or a range, it is still one Ask: pass the half-open UTC interval as interval, or the instant as as_of, and axis when the question is about when something was seen, written or held rather than when it happened; the kernel admits only what falls inside, reads supersession and expiry as they stood then, and declares where it stood in proof.interval, proof.as_of and proof.axis. Minimum input: exact about and the question rendered in plain English with every number, identifier and acronym the user wrote kept exactly, plus the user's own words as asked_as. Complete Spanish/English month-name dates and ISO YYYY-MM-DD may preserve the same calendar day; other identifiers remain literal. A terminal English possessive keeps its whole identifier: O2, O2's and O2’s match for fidelity; O3 or O20 do not. A number joined to a unit word keeps it: 90 minutos matches 90-minute. Capitals that are a raised voice and a slashed pair of ordinary words are rendered, not copied. A decimal may change its separator where that cannot be in doubt: 0,6 matches 0.6; a three-digit group such as 1,500 stays literal. Stored words are unchanged. Expect: cited stored text byte for byte or UNKNOWN, asked_as echoed, a warning when the rendering dropped an identifier or leans to another language, and on UNKNOWN within an interval the nearest match outside it in proof.nearest_outside, which is the cue to widen the interval rather than conclude the memory was never written. An UNKNOWN may still carry evidence a hop reached: summary and proof.missing say whether nothing was retrieved or whether what was retrieved bears on the question, and a hop is proof and never a citation. Next: inspect a relied-on ref, trace a relied-on connection, re-ask at most once in the user's own words, or stop honestly at UNKNOWN. After the permitted selections, a genuinely semantic UNKNOWN is terminal. Do not inspect the root, sweep all abouts, change optional arguments or traverse the graph to bypass it. Reclassify only when the original goal actually asks for temporal state. Read the language and retrieved-proof topics when their warnings or provenance matter. For a partial read, execute projection.next_action unchanged. A continuation is a continuation handle the server resolves to the complete call, preserving question, asked_as, dimensions and temporal selection. If core_text_shortened, its call restarts without page.cursor at a sufficient allowance; discard the earlier partial reconstruction. Otherwise append each continuation's items (projection.core_reused: the core came once, on the first page; page.repeat_core=true sends it again). Finish when next_action is null; detail or selection caps remain explicit. A stale cursor returns conflict and feedback[].action for a fresh read; never combine different selections. Named dates without a year preserve only month/day: 18 de agosto matches August 18 or a valid ISO date ending in -08-18. The lint neither supplies nor verifies an added year; keep it absent unless evidence supports it. A complete source date must retain its year. A missing partial date is reported as --08-18; repair the month/day, never pad the rendering with a bare 18. projection.sections.*.remaining counts eligible expansion after this page, excluding the core and all prior pages; a zero counter is omitted, and core and excluded_by_detail appear once, on the page carrying the core. Use these per-section counts to identify unread passages or relations; zero does not establish semantic sufficiency or erase detail/selection caps.",
+          "evidence": "The live kmp_ask contract retrieves stored evidence and never generates a fallback answer. Remaining section counts survive typed projection and exclude the core and every earlier page.",
+          "guide_title": "Ask a semantic question"
+        },
+        {
+          "id": "verb:relate",
+          "kind": "instruction",
+          "depth": "basic",
+          "text": "VERB relate. Use kmp_relate when the question is what the memories of several abouts have to do with each other: which facts of these projects fell in the release window, how they stand to each other in time inside the labels they share (the same dimension kind and scope; a scope under two kinds is two labels), what each about declared between its own facts, and which declared contradictions still stand. Coordinate comparisons are read off the stored coordinates and do not declare links. Cross-about identity links are separate writer declarations from a relate proposal. Minimum input: the current about and dimensions.scope naming or sweeping the abouts; interval and axis bound it in time. Expect: facts with their lifecycle state at the end of the interval, declared relations within each about, coordinate relations between abouts with a why a reader can check against the coordinates, tensions, proposed links between facts of different abouts that share a key — an identifier rare across the span, a matching English summary, a proper name — with the signals that read them and never stored, and a proof that says which abouts were read and which had nothing inside. A proposal a writer declares with kmp_write_memory as same_event_as or same_entity_as comes back declared, and from then on ask cites through it across abouts and trace walks it. Next: inspect a fact before relying on it; ask when what you want is an answer to a question rather than the shape of what happened. budget.max_bytes pages whole items in facts, declared, coordinate, tensions and proposed order. Preserve the selection when following page.next_cursor. If no item fits, page.required_bytes gives the allowance for the next whole item; a large summary or selection proof is a stable floor returned with an explicit warning. Follow next_actions as complete tool/arguments calls. The opaque cursor binds the request and the complete selected content, including facts or proof on later pages. A change returns conflict with feedback action to restart; never combine earlier pages with that fresh read.",
+          "evidence": "The live kmp_relate contract returns facts, declared, coordinate and tensions with a proof and never ranks by a question.",
+          "guide_title": "Compare memories across abouts"
         },
         {
           "id": "verb:time",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB navigate time. Use kmp_goto for state at a point, kmp_near for its neighborhood, kmp_rewind for earlier history and kmp_forward for later history. Temporal intent beats Ask. Minimum input: exact about plus timestamp, sequence or ref cursor. Expect: ordered entries and page.has_more. Next: consume the exact cursor with the verb named by next_action until the interval is complete.",
-          "evidence": "The four live temporal contracts define direction, cursor field, ordering and continuation semantics separately."
+          "evidence": "Native field projection checks omitted fields, executable scoped expansion, unchanged proof and cursor rejection after hidden content changes across embedded and gRPC transports. The shared relation-clock fix from #599 also checks link timestamps independently of older endpoints before constructing proof and lifecycle. Direct native interval regressions cover both directions, start ties, exclusive ends, proof paging, earlier antecedents, later proof exclusion and unassessed expiry without an end. The four live temporal contracts define direction, cursor field, ordering and continuation semantics separately. A real embedded MCP regression combines lane selection with positive and negative selectors through all four temporal verbs and clocks, and the negotiated App projection. Native wake/ask rejects explicitly later receipt evidence from earlier observed instants and exclusive interval ends while preserving event-time retrieval. Native response-page tests reconstruct entries and proof verbatim, reject a changed selection and execute the minimum-budget retry; completed packets offer executable temporal navigation. The limited-selection warning leaves continuation syntax to the transport; MCP actions do not reinterpret an opaque response cursor as a memory ref. Goto proof stops at its inclusive resolved cursor or an earlier exclusive interval end, respecting later relation and evidence arrival. Native temporal dependency tests recover full related records and coordinates without changing history selection, preserve clock and label exclusions, reject changed dependency cursors, reconstruct paged proof with reduced entry fields, and exclude expired links on validity reads. Real gRPC service traversal and separate MCP wire tests cover all four temporal verbs. The alias-ownership example requests one alias entry with its bounded dependency group. The existing context composer now recognizes dependency records as typed text, ref definitions and span sources. Native shared-page and pure-composition tests reconstruct all stored values, retain literal group members and omit whole groups without leaking their source text. Explicit entry-ref selection keeps the question cutoff separate from the selected memory time, before history limits and without filtering dependency sources. Native boundary, scope, label, invalid-input and response-continuation tests and all-four-verb gRPC checks cover the new selection. The alias-ownership lesson selects an older directory entry at the later clarification time. Full-detail actions replay the original temporal selection and proof; they do not move to the selected entry instant. RFC3339 readback preserves nanosecond fractions and normalizes numeric UTC offsets; native regression checks distinguish inclusive instants from exclusive interval ends within one second. Temporal label regression #711 checks membership clocks before positive/negative entry selectors and coordinate projection, including lane independence, missing clocks and continuations.",
+          "text_file": "verbs/time.md",
+          "guide_title": "Navigate and zoom in time"
         },
         {
           "id": "verb:audit",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB audit. Use kmp_inspect when one ref must support a claim; use kmp_trace when the connection between two refs is itself the claim. Do not guess or rebuild refs. Minimum input: exact about and exact returned refs. Expect: canonical object, evidence and links, or an ordered proof path. Next: follow pagination and cite stored evidence byte-for-byte.",
-          "evidence": "The live inspect and trace contracts enforce an explicit about boundary and preserve proof."
+          "evidence": "The live Inspect contract returns executable continuation, minimum-progress and stale-selection restart calls, preserving the about boundary, object reuse and canonical proof. Receipt inspection uses the existing accepted-command index without creating a graph memory. Bounded multi-target Trace exposes actual discovery work and preserves source-backed edge direction in one snapshot. Temporal controls cover all four clocks, subsecond link arrival, canonical coordinate changes, inclusive instants, exclusive interval ends, unknown clocks, shared snapshot and pre-read node/edge budgets.",
+          "guide_title": "Inspect evidence and trace a connection",
+          "text_file": "verbs/audit.md"
+        },
+        {
+          "id": "verb:condense",
+          "kind": "instruction",
+          "depth": "basic",
+          "evidence": "The tool contract in crates/kmp-mcp/src/contract/tools/condense.rs and the card policy in crates/kmp-domain/src/model/node_card_policy.rs: scope node_body only, digest-bound validity, compare-and-set on card_revision, kernel-stamped authorship and refusal of a source that moved. Accepted card revisions are appended atomically to the separate node_cards event stream, rebuilt into indexed historical projections and preserved by export/import; NodeCardEvent and node_card_history_tests prove the contract. SQLite format 3 upgrades to 4 before surviving cards become explicit baseline events, fencing older binaries without inventing lost revisions; portable card histories use event format 3. Condense mapping requires actor; CallGuidance fills an omitted actor only from a valid persistent context. Standalone examples therefore include an explicit actor. Trace condense candidates are computed by trace_condense_policy over selected descriptors, card views and admitted supports before pagination; exact source/expect values replace manual identity transcription.",
+          "guide_title": "Condense: write a compact card bound to one body version",
+          "text_file": "verbs/condense.md"
+        },
+        {
+          "id": "verb:curate",
+          "kind": "instruction",
+          "depth": "basic",
+          "evidence": "The tool contract in crates/kmp-mcp/src/contract/tools/curate.rs and the curate context in crates/kmp-mcp/src/curate: review reads the relate selection through curate_reading_from_result, which opens the kernel proposer to same-about pairs and does not page; ReviewRelations asks the JudgementModel port only closed questions (choice among writer relation types plus none, cross-about restricted to equivalences; noul for contradiction and support) and never uses an answer as text; findings are frozen by review_token in an in-process cache. Apply resolves accepted items against that frozen review in the embedded store, freezes a Jev pre-write check of the agent's own why and evidence by digest, and commits through commit_write_plan, the path kmp_write_memory uses, adding curated_by evidence metadata; tests/curate.rs proves review, doubt, needs_review resume, commit, replay and provenance. The TypeSafe adapter is opt-in per store through typesafe.json and TYPESAFE_API_KEY, validates every answer against the question sent, and degrades to untyped kernel pairs with a warning. tests/curate_review.rs and the use-case tests prove paging, degradation and thresholds.",
+          "guide_title": "Curate: find missing and doubtful relations with Jev, then write them yourself",
+          "text_file": "verbs/curate.md"
         },
         {
           "id": "verb:write",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB write. Use kmp_write_memory when a durable decision, constraint or outcome is reached. Use low-level kmp_ingest only when producing the exact graph. Do not store transcripts. Minimum input: exact about, intent, actor, observed time, scope, current fact and direct evidence. Expect: validated relation quality and read-after-write readiness. Next: inspect the generated ref when the write matters.",
-          "evidence": "The live writer contract validates intent and relation quality before compiling to canonical ingest."
+          "evidence": "Native writer validation returns field-localized repair feedback and exact supported read actions; semantic packets validate before commit. Accepted packets return declared coverage and an immutable command receipt recoverable through Inspect; source coverage remains unassessed and store errors preserve their categories. Native INVALID_KIND feedback exposes the schema vocabulary without choosing a meaning. The semantic-batch replay checks individual source labels, explicit aliases and an unapproved request that preserves the prior decision. INVALID_TYPE distinguishes present JSON type errors with expected_type and received_type; EMPTY_MEMORIES distinguishes an empty array. Native tests verify atomic rejection and correction without coercion. Independent compiler failures are returned together per record before canonical ingest; native tests cover atomic memory and search-summary repair. Writer checks compare evidence clocks and consistent dimensional routes. HTTP authorization checks current packet labels, nested refs, relation targets and search summaries before the backend; native transport tests cover refusal and local references. Accepted-command status and per-entry clock coverage come from canonical ingest and its idempotent receipt, not a caller guess. The acknowledgment projects canonical from/rel/to triples with local ids; native tests compare preview, commit and replay with receipt endpoints, including stored targets. Exact local ids with or without @ resolve inside the packet. Native tests exercise deterministic single-class completion, explicit class preservation, ambiguous-class feedback, unknown local ids, atomic rejection and durable receipts after restart; omitted observation defaults to exact ingestion, unknown occurrence stays absent, and explicit record overrides preserve their source dates. Native clock tests cover preview, receipt, replay, restart, import and summary updates. Native neighborhood checks require review before rich links, preserve pending/no-write and replay semantics, retain explicit scope and source omissions, and expose complete stored ownership separately from compact items so new proposed abouts receive no dead Wake. SQLite checks all reviewed aggregate revisions and commits events, receipts and projections atomically across independent sessions; before/after revision sampling refuses mixed-version review reads. The event-separation lesson teaches event-specific source fragments and summaries with a shared observation time and distinct occurrence cutoffs. Semantic links now receive independent declaration observation and ingestion; endpoint times do not backdate them, and receipt coverage counts links separately. Native #701 regression separates old source time from later support declaration, checks historical candidate admission, inclusive/exclusive observed and ingested cuts, event-time retrieval, replay, restart and restoration. kmp_write_memory accepts a third top-level shape: relations declares evidenced links between memories that already exist. Canonical ingest validates endpoints and atomically writes only the links and evidence, so concurrent source corrections remain intact. No source snapshots enter the logical digest, and exact retries replay after endpoint replacement or relabelling. Neighborhood review derives constraints from the stored endpoint labels. The link and its generated evidence carry their own supplied observation. Evidence identity is derived from the logical write identity and the triple, so an exact retry replays and a later second link to the same pair keeps the earlier evidence. The accepted result separates created relation and evidence from unchanged sources in attachment, and reports a supplied-ref memory update as replacement. Native tests cover preservation, assertion clocks, review, changed-payload retries, a later second link and embedded/gRPC parity.",
+          "text_file": "verbs/write.md",
+          "guide_title": "Write evidence, change labels, audit what summaries owe"
         },
         {
           "id": "verb:view",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB show. Retrieval comes first; then use kmp_view_open once, kmp_view_apply_intent to declare semantic focus, and kmp_view_get_state before continuing. Do not send pixels or reopen to navigate. Minimum input: exact about, then a content-derived intent key and current view revision. Expect: a shared ChronoLoom state and capability URL. Next: rebase on a revision conflict or continue from the person's latest state.",
-          "evidence": "The live view contracts make the view shared, semantic, optimistic and read-only with respect to memory."
+          "evidence": "The live view contracts make the view shared, semantic, optimistic and read-only with respect to memory. Native embedded tests cover new and retained about layers, scope refusal and catalogue values found only in an additional about. Issue #443 split how the two tools answer absence: native checks pin that kmp_view_open still refuses an about the store does not hold, while kmp_view_apply_intent degrades around absent refs, names each one in unhonored, and leaves the view unmoved with applied false when no named ref exists. A ref outside the projected planes remains a scope refusal, not an absence. HTTP and negotiated MCP App regressions preserve the declared equivalence and method; source clock, range, label and page exclusions remove it, and the scene requires both visible endpoints. ChronoLoom labels its inspector Current record and explains that its status and links can include updates outside the scene window. The DOM relation-click regression covers projected and off-window entries and a failed selection; the native SHIFT-6 visual review follows the later resolution from an earlier observed scene. Native checks preserve the exact bundled renderer bytes in both viewer surfaces. Repeated identical visual projections reuse a service-local bounded cache only under a certified complete graph/body snapshot revision and the full query. Tests compare cached and uncached outputs across clocks, labels, ranges, pages, peer writes and cross-about changes; HTTP capability checks and no-store responses remain outside the cache. ChronoLoom interaction checks preserve directed arrows, reference picking, layer and label identity, final rapid-input state, and resource disposal. Browser controls exercise the bundled WebGL renderer; native routes expose the same retained-scene modules in both viewer surfaces.",
+          "text_file": "verbs/view.md",
+          "guide_title": "Frame and share ChronoLoom"
         },
         {
           "id": "verb:guide-sync",
           "kind": "instruction",
           "depth": "basic",
-          "text": "VERB guide sync. Use the shipped kmp-guide-sync.sh when setup, update or an explicit guide request must converge the installed guide. It is lifecycle work, not an MCP memory verb. Do not improvise guide entries. Minimum input: the matching installed engine and guide assets. Expect: the fixed guide abouts applied idempotently. Next: wake guide:kmp-agent for agent guidance or run open:guide for the human view.",
-          "evidence": "The plugin ships one content-addressed request set and a regular format-2 bundle for deterministic guide convergence."
+          "text": "Synchronize guide assets for requested guide setup/update, a human guide opening that needs current assets, or a confirmed store/version mismatch. The installed guide/AGENT.md is a brief entry with exact references to extended verbs and examples. Read it once while it remains in context; a routine memory call needs no full documentation wake. Sync converges both fixed guide abouts idempotently through kmp-guide-sync.sh; it writes the selected store and may update its maintained bundle. Check the selected store and matching assets before applying them. On a fresh store, run the explicit kmp-guide workflow in Codex or /kmp:guide in Claude Code after setup and restart to load the installed lessons. Repeat synchronization when changing stores or loading upgraded guides. Software setup/update do not write memory: kmp-update.sh lets the native lifecycle choose the latest public release, or forwards an explicit --version target. The plugin manifest selects the bootstrap engine and default setup version; it must not pin an ordinary update to the old release. If the selected store has no guide or only part of it, kmp_guide and missing guide Inspect reads return GUIDE_UNAVAILABLE feedback with an explicit CLI repair. Preserve the same binary, working directory and store/backend environment; stop the embedded MCP holder before running kmp-mcp guide sync --plugin-root <plugin-root> with the matching plugin directory. Restart the connection on that same store and retry. Ref and version mistakes still require checking; reads never seed assets automatically. Before diagnosing a configuration mismatch, use kmp-mcp config to identify the effective store. On current main after v0.24.0, info and doctor report Store config using the startup loaders: on, on with its defaults, rejected, or off (absent). An absent optional file leaves the feature default in effect. Preserve the same working directory and environment when comparing those diagnostics to a host session.",
+          "evidence": "The plugin ships one content-addressed request set and a regular format-3 bundle for deterministic guide convergence.",
+          "guide_title": "Synchronize guide assets"
+        },
+        {
+          "id": "verb:lexical-bridge",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "VERB setup, lexical bridge. The table that lets ask reach a memory written in another language is installed by kmp-mcp setup and kmp-mcp update, once for the machine at <user data home>/kmp/lexical-bridge.kmpb, never inside one store. Three places are read, nearest first: whatever KMP_LEXICAL_BRIDGE names, then <data dir>/lexical-bridge.kmpb for one store alone, then the machine's table. Decline it with --no-lexical-bridge, or install one built locally with --lexical-bridge FILE. KMP_LEXICAL_BRIDGE=none is the opposite of a path: run without a table on purpose, which is how a store that has none of its own declines the machine's copy behind it; info and doctor then report a bridge turned off rather than one that could not be read. The release's table replaces whatever the machine held, and the receipt names the digest it replaced under replaced_sha256; a table that must outlive update lives beside one store or is named by KMP_LEXICAL_BRIDGE. It is never a gate: a release that publishes no table and a fetch that fails both leave setup successful, and the receipt says which happened under lexical_bridge. Expect: crosses_languages true once a table is in place. Without the table, original text and valid summary_en remain searchable; an English summary can retrieve an original in another language. The table is an additional path, not a requirement for every cross-language retrieval. info and doctor report its availability.",
+          "evidence": "The convergence installs the table last, after the engine is proved, and maps every failure onto a reported outcome rather than an error.",
+          "guide_title": "Install an optional lexical bridge"
         },
         {
           "id": "advanced:scope",
           "kind": "constraint",
           "depth": "advanced",
-          "text": "Cross-about reads are explicit. dimensions.scope=current_about is the safe default. Use scope=abouts with a non-empty abouts list when the question deliberately combines memories; all_abouts is a real sweep. Abouts are opaque identifiers and are never joined by relations.",
-          "evidence": "The live read schemas expose current_about, abouts and all_abouts as distinct cost and isolation choices."
+          "evidence": "The live read schemas expose current_about, abouts and all_abouts as distinct cost and isolation choices.",
+          "text_file": "topics/scope.md",
+          "guide_title": "Cross abouts, labels and selectors"
         },
         {
           "id": "advanced:relations",
           "kind": "constraint",
           "depth": "advanced",
-          "text": "Relations carry the why. A rich relation has a specific type, semantic class, why, concrete evidence and confidence. Use follows/procedural, answers/evidential or uses_background/evidential only as honest anemic fallbacks. Never invent rationale to satisfy a schema.",
-          "evidence": "The writer relation vocabulary distinguishes semantic meaning from fallback links and reports relation quality."
+          "evidence": "The writer relation vocabulary distinguishes semantic meaning from fallback links and reports relation quality. Endpoint roles are explicit for permission, verification, exclusion, correction and replacement. The projection marks the entire supersedes target SUPERSEDED; corrects does not change that status. Exact local ids with or without @ resolve inside the packet. Native tests exercise deterministic single-class completion, explicit class preservation, ambiguous-class feedback, unknown local ids, atomic rejection and durable receipts after restart; packet observation remains explicit. Semantic links now receive independent declaration observation and ingestion; endpoint times do not backdate them, and receipt coverage counts links separately. Native #701 regression separates old source time from later support declaration, checks historical candidate admission, inclusive/exclusive observed and ingested cuts, event-time retrieval, replay, restart and restoration. A link between two stored memories is declared through the relations shape rather than by resubmitting either endpoint; its observation is the writer's own and never an endpoint's, and structural links stay with kmp_relabel.",
+          "text_file": "topics/relations.md",
+          "guide_title": "Choose a relation and justify it"
         },
         {
           "id": "advanced:idempotency",
           "kind": "constraint",
           "depth": "advanced",
           "text": "One idempotency key names one logical write or view intent. An exact retry with the same key is success without a duplicate. Reusing a key for different content is a conflict and must not be worked around by blind retry.",
-          "evidence": "KMP binds idempotency keys to logical digests and preserves replay outcomes across export/import."
+          "evidence": "KMP binds idempotency keys to logical digests and preserves replay outcomes across export/import.",
+          "guide_title": "Retry one logical write"
         },
         {
           "id": "advanced:pagination",
           "kind": "constraint",
           "depth": "advanced",
-          "text": "A partial read is not the whole answer. Follow page.next_cursor with every bound argument unchanged; wake and Ask page expansion items, temporal verbs page entries, trace pages relations, and inspect pages details, evidence and links. required_bytes is negotiation guidance, not a reason to probe budgets repeatedly.",
-          "evidence": "Every bounded live read reports its own page unit, continuation and byte-budget guidance."
+          "text": "A partial read is not the whole answer. Follow page.next_cursor with every bound argument unchanged; wake and Ask page expansion items, temporal verbs page entries and proof through executable next_actions, trace pages relations, and inspect pages details, evidence and links. required_bytes is negotiation guidance, not a reason to probe budgets repeatedly. Ask keeps cited evidence in the stable core and preserves retrieval rank among additional evidence across pages. Wake and Ask send that core once: a continuation carries only new expansion items and marks projection.core_reused, so keep the first page. If the host lost it to compaction or reconnect, send the returned continuation with page.repeat_core=true to receive the core again. A changed candidate order invalidates an old cursor. If a wake or Ask page returns zero expansion items while has_more is true, follow its no-progress guidance: increase budget.max_bytes for the same cursor, or report the selection as partial when the budget is fixed. Repeating that cursor at the same byte ceiling cannot advance. Trace and Relate provide next_actions to execute unchanged; a continuation is a handle to the complete call. Sent explicitly with page.cursor, only page.entries and budget.max_bytes can vary on their continuation; changing selected content or another argument returns conflict with a restart action in feedback.",
+          "evidence": "Every bounded live read reports its own page unit, continuation and byte-budget guidance.",
+          "guide_title": "Complete a bounded read"
+        },
+        {
+          "id": "advanced:budgets",
+          "kind": "constraint",
+          "depth": "advanced",
+          "text": "budget.max_bytes is the normative host-safe ceiling for serialized structuredContent. On kmp_ask, kmp_wake, temporal reads, kmp_inspect, kmp_trace and kmp_relate, a ceiling below the response's stable floor returns that minimal floor with a warning naming the requested and required sizes; it is a qualified success, not an error or permission to discard the stable object. Values below 512 bytes remain invalid. Raise the ceiling only when richer expansion is needed. A shortened proof body retains its identity and provenance. Ask and Wake return an executable projection.next_action. When core_text_shortened is true, it restarts without page.cursor at a sufficient allowance to recover the full core; discard the partial reconstruction. Otherwise append each continuation's items (projection.core_reused: the core came once, on the first page; page.repeat_core=true sends it again). Continue until next_action is null: has_more=false alone describes expansion, not restored core. A stalled page declares minimum_progress_bytes and proposes that allowance plus 10000 bytes for useful expansion, so restoring the core does not force a one-item walk. If that allowance is unavailable, keep the result partial. Cursor conflicts include feedback[].action to restart the same arguments; do not combine old and new selections. budget.detail chooses eligible expansion before caps: excluded_by_detail is not lost pagination. budget.max_entries caps the selection before paging. budget.tokens is an advisory planning hint, not a filter of canonical structuredContent; defaults remain declared in each tool schema. selection_omitted includes evidence withheld by max_entries before response projection, even when page.has_more is false or compact detail hides the missing-source list. A completed page can still describe a capped selection; changing the cap starts a new selection. Inspect can avoid repeating a large stable object: retain it from the first page, then use page.repeat_object=false with the returned cursor. This can let the remaining evidence fit the original ceiling. required_bytes still describes the complete inspection with its full object. Execute Inspect next_actions until empty; when an expansion item cannot fit, the call offers at least page.minimum_progress_bytes, preferring a complete inspection up to the usual 10,000-byte allowance. If that allowance is unavailable, report the pending proof. A changed selection returns conflict with a fresh-read action, which restores the full object. Trace and Relate never shorten a fact, relation why or evidence to fit a page. For example, after a 512-byte request returns zero items, copy page.next_cursor and set budget.max_bytes to page.required_bytes; do not repeat the blocked page at 512 bytes. Their opaque cursors bind the complete selected content. Execute next_actions to retain every argument and any negotiated byte allowance. Changed content returns a conflict with a complete restart action; retain the old result only as an explicitly incomplete earlier read. Temporal pages report minimum_progress_bytes when the next indivisible item cannot fit, and next_actions provides a retry that admits an item. A response page can be complete while selection.has_more reports history outside the selected packet. With context_id, KMP can replace a returned read action with {tool: the_same_verb, arguments: {continuation: returned_id}}. Copy that action unchanged: do not add context, cursor or budget. Metadata retains the exact context, purpose, selection, clock, scope and recommended allowance. One call reads one page. Repeating an id replays that page; use the new returned action to advance. Page completion and navigation to another temporal selection remain distinct. Handles survive reconnect to the same store but expire after 24 hours, with at most 16 per context and 256 per directory; an individual retained call is capped at 32 KiB. They are transport metadata, absent from memory evidence and exports, not authorization or a durable bookmark. Current HTTP permissions are checked on the full retained call. CONTINUATION_UNAVAILABLE means restart the original selection; changed evidence still yields the native cursor conflict. Without context, on storage failure, or when a handle would enlarge the action, the executable full call remains. Raw cursors stay in the response for explicit clients; do not combine that path with a continuation id. Native projection floors and minimum-progress allowances are computed before this optional action encoding; the encoded action never enlarges that packet, and recall used_bytes reports its transmitted structuredContent size. In hosts that opt into KMP_MCP_PASSAGES=shared, a returned text, why or evidence slot may be {\"passage\":\"p1\"}: read passages.p1 in that same response. The entire literal is preserved; keep each page together with its own passage table. p1 names display text, not an entity. A graph-reference slot may be {\"citation\":\"c1\"}; citations.c1 resolves the exact canonical ref of a record defined in the response. Definitions remain literal, as do refs to absent records. Cite the resolved canonical ref and retain source, support, authorship and clocks. Keep both tables with their response; never resolve a name against another page. Equal wording from independent sources remains independent evidence. Inline text remains when sharing cannot save bytes. Native selection, cursor and required_bytes/floors still describe the inline read; used_bytes measures the actual shared packet. Sharing completes no omitted page or proof group. Host composition may admit whole declared groups under a byte budget; omitted groups retain their original reads. Group boundaries and completeness are not inferred from text. Overlapping quotations without known source boundaries remain separate. For captured groups, kmp-mcp context project|expand [FILE|-] composes or restores JSON without opening memory. It resolves each input page against its own tables. A v2 composed slot can be {\"passage\":[\"p1\",\"p2\"]}: concatenate those literals in order with no added separator. The host may supply source spans only when it knows the returned source ref, exact text SHA-256 and UTF-8 bounds; KMP checks the entire quote. Writers need not calculate offsets. A source omitted by the budget is not loaded through a table: the retained quote stays whole and the omission keeps the source read. This validates text agreement, not attribution or proof completeness. Do not add absent evidence. The v2 decoder rejects other context versions. Partial successful reads lead their first MCP text with READ_INCOMPLETE, independently of context registration. The notice reflects page.has_more or recall core_text_shortened; optional packet_partial guidance uses the same read detection. selection.has_more describes other matching history, not remaining projected proof. The structured summary, proof, cursors and byte budget are unchanged; the short notice adds envelope text only. A complete page does not imply sufficient evidence.",
+          "evidence": "The live read schemas and projections guarantee one stable response floor plus an explicit warning when a valid max_bytes ceiling cannot contain a smaller honest response.",
+          "guide_title": "Choose a byte ceiling"
         },
         {
           "id": "advanced:lifecycle",
           "kind": "instruction",
           "depth": "advanced",
-          "text": "Supersession, contradiction and expiry mean different things. supersedes says a later state replaces an older one while preserving history and why. contradicts keeps two live claims in tension. valid_until ends applicability without requiring a replacement.",
-          "evidence": "KMP proof separates superseded, conflicts and expired so an agent cannot flatten distinct lifecycles."
+          "evidence": "KMP proof separates superseded, conflicts and expired so an agent cannot flatten distinct lifecycles. Native historical wake/ask preserves an earlier conflict and hides its live marker only after explicit supersession; the old edge remains auditable.",
+          "text_file": "topics/lifecycle.md",
+          "guide_title": "Replace, contradict or expire"
+        },
+        {
+          "id": "advanced:reach",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "Ask proof can carry memory the question never matched. An evidence item with reached_by arrived by a route instead of by its words: relation means a proven causal or motivational edge was walked out from something the question did match, named by reached_from, reached_via and reached_hops; association means this store's own vocabulary connects the question's words to that memory's; bridge means the installed lexical-bridge table connects a few of the question's words to that memory's across a language, and reached_via lists the pairs, as valvula≈valve 0.51. Read them as proof and never as the answer. They are not cited in because, and the kernel makes no claim that they answer anything. A cited item may instead carry bridged_terms: it answered, most of the question reached it through the table rather than in the reader's own words, and confidence is medium at most for that reason. A cited item carrying restated_from and restated_via is the same thing as a cited memory in other words: a writer declared it with restates, same_event_as or same_entity_as, with why and evidence, and the kernel cites it beside the memory the question matched. With the optional local semantic retriever enabled on an embedded store, reached_by=semantic identifies a candidate proposed by the optional local retrieval adapter; semantic_model_revision records its version, including the ranking policy when the optional sidecar fuses BM25 and dense candidates. The default sidecar remains dense; a policy-qualified revision is required to opt in to lexical/dense fusion. The separate-bm25-v1 policy returns independent dense and BM25 channels for one native fusion; retrieval_channel identifies the supplemental representation retained, while similarity or a lexical score still does not prove an answer. KMP accepts only a matching stored ref and text fingerprint inside the selected scope, time and lifecycle. These candidates also remain proof rather than citations or answers; UNKNOWN may still be correct. A warning declares a fallback when the optional encoder is unavailable.",
+          "evidence": "The live ask projection marks indirectly reached evidence and keeps it out of the answer core; a cited item that crossed a language names the word pairs that carried it, and a cited restatement names the memory it restates.",
+          "guide_title": "Interpret retrieved proof"
+        },
+        {
+          "id": "advanced:language",
+          "kind": "constraint",
+          "depth": "advanced",
+          "evidence": "kmp_ask takes asked_as, echoes it, and returns a warning per rendering fault; kmp-mcp info and doctor name the table a store reads or say there is none; the config verb takes no language setting.",
+          "text_file": "topics/language.md",
+          "guide_title": "Search language and literal evidence"
+        },
+        {
+          "id": "advanced:summary",
+          "kind": "constraint",
+          "depth": "advanced",
+          "text": "An English search summary is searched and never cited. A memory written in any language may carry the reserved entry metadata key summary_en: an English rendering of its text, written by the writer at ingest, that an English question lands on. kmp_ask searches it as content, beside the text, and cites the stored text byte for byte, so the summary is where a writer canonicalises jargon, rollout slipped as launch postponed, while the memory stays what somebody wrote. A cited item carrying matched_via: summary was reached through the rendering and not through its text, and summary_terms names the question's words the rendering supplied; read them as the writer's words, not the memory's. The kernel lints it rather than trusting it: kmp_ingest warns, entry by entry, about a summary that leans to another language, carries fewer than two informative words, repeats the text word for word, or drops an identifier the text carries such as v0.7.0, #469 or kmp-mcp, and ranking makes the same reading, so such a summary carries nothing. kmp_write_memory takes it as memories[].summary_en: a strict write requires it when the fact is not written in English and refuses one that fails the lint, naming every fault. Fix the summary the error names; never alter the text to fit it. A memory written before summaries existed still owes one. kmp_summaries_audit reads where every memory of an about stands, without a terminal: a state of missing, refused, stands or not_required, the stored text to render wherever there is work, summary_en and summary_en_by where a rendering exists, the lint's own faults when it refuses one, and deterministic weaknesses when one stands and still retrieves little (thin, repeated across the about, undiscriminating, stale after a later rewrite). Weaknesses are warnings and never refusals; the audit generates no text and rejects nothing. Read a named set with dimensions.scope abouts and dimensions.abouts, or every anchor with all_abouts, which is the explicit opt-in to that cost; totals describe the whole selection and never the page, and page.cursor continues it with the bound arguments unchanged. kmp-mcp summaries pending prints the debt half of that same reading and the doctor counts it. Attach one or more with kmp_write_memory, search_summaries containing ref and summary_en only, and the stored text stays exactly as it was. The lint preserves literal identifiers: render UE as UE (EU), and retain times such as 09:00 and UTC. Complete Spanish/English month-name dates and ISO YYYY-MM-DD compare by calendar day: 17 de agosto de 2026 equals August 17, 2026 or 2026-08-17. Invalid or other date formats stay literal; amounts outside a date still need their own numbers. A terminal English possessive keeps its whole identifier: O2, O2's and O2’s match for fidelity; O3 or O20 do not. A number the source wrote on its own survives the compound English builds around it: 90 minutos renders as 90 minutes or as 90-minute, while 91-minute drops it. Capitals that are a raised voice are rendered like any other words, so BLOQUEANTE ANTES DE MIGRAR NADA needs no Spanish in the English field, and a slashed pair of ordinary words such as entradas/salidas becomes inputs and outputs; a path, a branch or an acronym pair such as feat/valkey-store or PASS/FAIL is still copied. A decimal keeps its digits and may change its separator where which one it is cannot be in doubt: 0,6 renders as 0.6 and 1,4 as 1.4, while 0,60 does not render as 0.6. A separator followed by exactly three digits is how thousands are grouped, so 1,500 and 1.500 stay distinct and are written as the source wrote them. This never changes stored text or proves semantic fidelity. The writer returns independent record failures together; repair every feedback item and resend the whole packet. Further failures in a record may appear after its first error is fixed. Named dates without a year preserve only month/day: 18 de agosto matches August 18 or a valid ISO date ending in -08-18. The lint neither supplies nor verifies an added year; keep it absent unless evidence supports it. A complete source date must retain its year. A missing partial date is reported as --08-18; repair the month/day, never pad the rendering with a bare 18.",
+          "evidence": "The ingest translation lints summary_en against the entry text and reports each fault as a warning; the answer ranker scores a summary that passes the same lint as content, notes the words it supplied on the citation, and cites the entry text. The summaries audit tool, the summaries verb and the doctor are three projections of one reading of the store's event log, which keeps every revision of an entry so a summary left behind by a later rewrite is visible; search_summaries compiles to an ingest of the stored entry with the summary, a fingerprint of the exact text it validated, and an implicit validation identity bound to the complete write declaration, so an unchanged retry is replay-safe without mistaking copied metadata or a later source revision for fresh validation.",
+          "guide_title": "Write or repair search summaries"
+        },
+        {
+          "id": "example:first-decision",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/first-decision.md",
+          "example_title": "Start here: one decision and its stated reason",
+          "evidence": "Two fictional source lines distinguish a constraint, a decision, its motivational reason and the absence of a test result."
+        },
+        {
+          "id": "example:decision-history",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/decision-history.md",
+          "evidence": "A fictional four-source Atlas history with executable public MCP calls, explicit semantic choices and negative limits. Replayed by scripts/guide_examples/replay.py; this teaches one history and does not measure LLM learning.",
+          "example_title": "Decision history and past validity"
+        },
+        {
+          "id": "examples:index",
+          "kind": "instruction",
+          "depth": "basic",
+          "text": "For a first use, read guide:kmp-agent:example:first-decision: two sources, one decision and its reason. Find a specific tool, kind or relation in guide:kmp-agent:examples:by-capability. Basic cases are grouped in preference-delta, workflow-proof, structure-parts and canonical-ingest; use the exact references in that map. Worked examples are optional source-grounded lessons. Decision changes and past validity: guide:kmp-agent:example:decision-history. Person alias, unresolved same-name mention and account reassignment: guide:kmp-agent:example:alias-ownership. Distributed incident, proposed identity and late reports: guide:kmp-agent:example:distributed-incident. Four clocks, half-open intervals and zoom to proof: guide:kmp-agent:example:four-clocks. Quantities, corrections, duplicates and exclusions: guide:kmp-agent:example:quantities. Conflicting assignments and evidence received late: guide:kmp-agent:example:late-conflict. Multiple aliases and distinct facets: guide:kmp-agent:example:dimensional-memberships. Labels, scoped synonyms and negation: guide:kmp-agent:example:labels-negation. Read the brief installed guide/AGENT.md once, consult the extended verb you need, and inspect a selected lesson. Writer prerequisites are selected by the lesson: relations and scope for distributed incidents; lifecycle for the four-clock permit, quantity settlement and late-conflict review; also lifecycle and summary for decision and alias histories. The labels lesson also reads language, summary and lifecycle. Their exact refs are guide:kmp-agent:advanced:relations, guide:kmp-agent:advanced:scope, guide:kmp-agent:advanced:lifecycle guide:kmp-agent:advanced:language and guide:kmp-agent:advanced:summary; reuse already-read bodies. These are exact refs in guide:kmp-agent. Complete selected pages. A compact wake is a catalogue, not the complete lesson. Authored replays check native contracts, not LLM learning; unseen writer and blind reader evaluation remains separate. More basic and advanced cases remain to be added. Budgeted pages and insufficient proof: guide:kmp-agent:example:budget-proof. Its additional prerequisites are guide:kmp-agent:advanced:budgets and guide:kmp-agent:advanced:language. Fresh reader and shared-view review: guide:kmp-agent:example:shared-resumption, also consulting guide:kmp-agent:gate:invocation. It distinguishes durable memory from a process-scoped view and reuses guidance within each fresh session. Execution and its later verification in one source: guide:kmp-agent:example:event-separation. Reader cards, named body expansion and compact reuse: guide:kmp-agent:example:reader-cards.",
+          "evidence": "The generated agent Markdown preserves the operating bodies and supplies exact kmp_inspect arguments for the indexed examples stored in the guide. Native replays check the paths separately from LLM learning."
+        },
+        {
+          "id": "example:alias-ownership",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/alias-ownership.md",
+          "evidence": "Five fictional dated sources distinguish an explicit person alias, an unidentified visitor and a reassigned account. Native MCP replay checks same_entity_as versus supersedes, catalogue maintenance, temporal selection and proof without invoking a model. Native temporal dependency tests recover full related records and coordinates without changing history selection, preserve clock and label exclusions, reject changed dependency cursors, reconstruct paged proof with reduced entry fields, and exclude expired links on validity reads. Real gRPC service traversal and separate MCP wire tests cover all four temporal verbs. The alias-ownership example requests one alias entry with its bounded dependency group.",
+          "example_title": "Aliases, unresolved names and account assignment"
+        },
+        {
+          "id": "advanced:repository",
+          "kind": "instruction",
+          "depth": "advanced",
+          "evidence": "Operating guidance moved from the reviewed memory skill; native lifecycle and tool error contracts remain authoritative.",
+          "text_file": "topics/repository.md",
+          "guide_title": "Repository bundles and snapshots"
+        },
+        {
+          "id": "advanced:errors",
+          "kind": "instruction",
+          "depth": "advanced",
+          "evidence": "Native MCP refusals preserve their error code and feedback actions while offering executable verb and lesson reads selected from typed diagnostics. Backend and guide-read failures do not trigger recursive guide help.",
+          "text_file": "topics/errors.md",
+          "guide_title": "Diagnose missing tools and errors"
+        },
+        {
+          "id": "example:distributed-incident",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/distributed-incident.md",
+          "evidence": "Four fictional sources identify two reports of outage EVT-17-F across support and project, distinguish recovery EVT-17-R, and preserve late observation times. Native calls check proposals, writer preconditions, the declared path, local and shared timelines, and three viewer stages.",
+          "example_title": "Distributed incident, proposed identity and late reports"
+        },
+        {
+          "id": "example:four-clocks",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/four-clocks.md",
+          "evidence": "Three fictional permit sources resolve to an actual UTC run calendar. The native replay preserves kernel ingestion, distinguishes four axes, rejects a forged ingestion field, checks interval and validity boundaries, and frames seven clock/zoom stages without invoking a model. Four small clock-field examples distinguish absent clocks, known occurrence, separate observation and coincident clocks; native writer clock tests cover these choices. Visual projections keep selected-clock admission strict and report entries missing that clock in missing and metrics; ChronoLoom displays that count beside the clock chips. Interval-only enumeration uses Forward/Rewind; Goto keeps its explicit position requirement.",
+          "example_title": "Four clocks, interval boundaries and zoom to proof"
+        },
+        {
+          "id": "example:quantities",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/quantities.md",
+          "evidence": "Nine fictional policy and transaction documents support a new decimal EUR subtotal and an exclusion audit. The native lesson distinguishes corrections, duplicate documents, voids and currency units, preserves earlier evidence and follows directed proof in three shared views.",
+          "example_title": "Quantities, corrections, duplicates and exclusions"
+        },
+        {
+          "id": "example:late-conflict",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/late-conflict.md",
+          "evidence": "Five fictional source documents preserve contradictory shift assignments, an unresolved review, a signed record received late and an explicit final resolution. Native historical reads retain the earlier conflict after the later replacement.",
+          "example_title": "Conflicting assignments and evidence received late"
+        },
+        {
+          "id": "example:dimensional-memberships",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/dimensional-memberships.md",
+          "example_title": "Multiple aliases, distinct facets and late memberships",
+          "evidence": "Two fictional registry sources demonstrate array labels, the same value under distinct keys, selection without duplicate memories, one-membership relabel, inherited clocks and ChronoLoom inspection with a key and value identifying each sequence."
+        },
+        {
+          "id": "example:labels-negation",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/labels-negation.md",
+          "evidence": "Six fictional LEX-7 sources distinguish glossary-backed catalogue normalization, an explicit restatement, a negative report under matching conditions, a different environment and a later decision. Native reads preserve the Spanish sources and original clocks.",
+          "example_title": "Labels, synonyms and negation under explicit conditions"
+        },
+        {
+          "id": "example:budget-proof",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/budget-proof.md",
+          "example_title": "Budgeted pages, incomplete proof and terminal UNKNOWN",
+          "evidence": "Five fictional source records demonstrate actual temporal, trace and inspect continuations, a capped selection and two terminal semantic UNKNOWN reads. The explanation distinguishes remaining passages and relations, the core sent once, earlier pages and semantic sufficiency."
+        },
+        {
+          "id": "example:reader-cards",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/reader-cards.md",
+          "example_title": "Read deep paths under a body budget, then condense what you read",
+          "evidence": "Four complete call shapes with explicit placeholders: descriptor manifest, bound canonical expansion, compare-and-set Condense, and fresh compact Trace. Distinguishes page completion, per-ref body completion, record bytes, body bytes and derived orientation."
+        },
+        {
+          "id": "example:curate-review",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/curate-review.md",
+          "example_title": "Review two abouts' relations, page the frozen review, and declare one yourself",
+          "evidence": "Four complete call shapes with explicit placeholders: review across two abouts, a page by review_token, an Inspect of both refs, and a kmp_curate apply with the agent's own why and evidence, including doubted and needs_review handling."
+        },
+        {
+          "id": "example:shared-resumption",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/shared-resumption.md",
+          "example_title": "Fresh-session handoff and shared-view revision conflicts",
+          "evidence": "HND-9 uses four explicit sources, a fresh reader process, unchanged write retries, a human clock/selection change, conflicting and idempotent view intents, and limited confirmation with a pending test."
+        },
+        {
+          "id": "example:preference-delta",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/preference-delta.md",
+          "example_title": "Preference and explicit policy delta",
+          "evidence": "P1 preference, D1 default and D2 replacement preserve before/after and the writer-declared delta links."
+        },
+        {
+          "id": "example:workflow-proof",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/workflow-proof.md",
+          "example_title": "Authorization, dependency and measured constraints",
+          "evidence": "Independent fictional sources justify causal, motivational and constraint links without broadening approval or measurement scope."
+        },
+        {
+          "id": "example:structure-parts",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/structure-parts.md",
+          "example_title": "Structure, membership and included contributions",
+          "evidence": "Declared plan, roster, environment and settlement show structural relations alongside distinct component, contribution and category evidence."
+        },
+        {
+          "id": "example:canonical-ingest",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/canonical-ingest.md",
+          "example_title": "Validated canonical ingest and exact retry",
+          "evidence": "A deliberately compiled writer preview is absent before ingest and preserves refs, clocks and proof on canonical replay. Coordinate ownership explains preservation of a redundant contains_entry declaration and refusal when its membership cannot be resolved; regression #576 exercises committed MCP and export/import. Native #701 regression separates old source time from later support declaration, checks historical candidate admission, inclusive/exclusive observed and ingested cuts, event-time retrieval, replay, restart and restoration."
+        },
+        {
+          "id": "examples:by-capability",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/by-capability.md",
+          "guide_title": "Find a concrete example for a tool, kind or relation",
+          "evidence": "Informative coverage review maps the live fifteen-tool, ten-kind and thirty-one-relation writer surface to source-grounded cases and their limits."
+        },
+        {
+          "id": "example:semantic-batch",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "examples/semantic-batch.md",
+          "example_title": "Atomic semantic packet with local proof links",
+          "evidence": "Two fictional R1/R2 sources exercise one-about atomic validation, forward local refs, all declared labels, independent clocks, exact retry and shared ChronoLoom proof inspection. Native INVALID_KIND feedback exposes the schema vocabulary without choosing a meaning. The semantic-batch replay checks individual source labels, explicit aliases and an unapproved request that preserves the prior decision. The teaching review contrasts R1/R2 source clocks with the accepted packet, distinguishes a request from an executed change and explains separate lifecycles and consistent account labels. Exact local ids with or without @ resolve inside the packet. Native tests exercise deterministic single-class completion, explicit class preservation, ambiguous-class feedback, unknown local ids, atomic rejection and durable receipts after restart; packet observation remains explicit."
+        },
+        {
+          "id": "card:wake",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/wake.md",
+          "evidence": "A short worked starting card for wake; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "card:write",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/write.md",
+          "evidence": "A short worked starting card for write; extended guidance remains available through its canonical verb reference. Exact local ids with or without @ resolve inside the packet. Native tests exercise deterministic single-class completion, explicit class preservation, ambiguous-class feedback, unknown local ids, atomic rejection and durable receipts after restart; packet observation remains explicit. Native neighborhood checks require review before rich links, preserve pending/no-write and replay semantics, and retain explicit scope and source omissions. SQLite checks all reviewed aggregate revisions and commits events, receipts and projections atomically across independent sessions; before/after revision sampling refuses mixed-version review reads. The event-separation lesson teaches event-specific source fragments and summaries with a shared observation time and distinct occurrence cutoffs. kmp_write_memory accepts a third top-level shape: relations declares evidenced links between memories that already exist. Canonical ingest validates endpoints and atomically writes only the links and evidence, so concurrent source corrections remain intact. No source snapshots enter the logical digest, and exact retries replay after endpoint replacement or relabelling. Neighborhood review derives constraints from the stored endpoint labels. The link and its generated evidence carry their own supplied observation. Evidence identity is derived from the logical write identity and the triple, so an exact retry replays and a later second link to the same pair keeps the earlier evidence. The accepted result separates created relation and evidence from unchanged sources in attachment, and reports a supplied-ref memory update as replacement. Native tests cover preservation, assertion clocks, review, changed-payload retries, a later second link and embedded/gRPC parity."
+        },
+        {
+          "id": "card:ask",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/ask.md",
+          "evidence": "A short worked starting card for ask; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "card:time",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/time.md",
+          "evidence": "A short worked starting card for time; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "card:audit",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/audit.md",
+          "evidence": "A short worked starting card for audit; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "card:relate",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/relate.md",
+          "evidence": "A short worked starting card for relate; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "card:view",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/view.md",
+          "evidence": "A short worked starting card for view; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "card:guide",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/guide.md",
+          "evidence": "A short worked starting card for guide; extended guidance remains available through its canonical verb reference."
+        },
+        {
+          "id": "verb:guide",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "verbs/guide.md",
+          "evidence": "The MCP guide assigns persistent agent identities and contexts, distinguishes served guidance from understanding, and provides explicit reset and fold operations. Native context tests cover usage persistence, returned guide bodies, profile actor, idempotency, intact memory budgets, executable typed continuations and relation audit, temporal UNKNOWN and accepted writes despite usage metadata failure. The kmp-expert host skill preloads every canonical agent-guide entry and example from a revision-keyed local cache; its manifest records delivery ranges and body hashes without changing MCP served state or adding model inference to the kernel. Native #731 tests cover absent, human-only, missing-card and revisionless guide stores; the returned explicit CLI repair succeeds on the same store and retries without another guide write.",
+          "guide_title": "Manage agent identity and guidance"
+        },
+        {
+          "id": "example:event-separation",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/event-separation.md",
+          "example_title": "One report, separate execution and verification events",
+          "evidence": "The X3 diagnostic separates R8 execution at 11:00 from H8 verification at 11:05, both observed at noon. Native checks compare occurred and observed cuts, source fragments, dependency admission, directed proof and viewer state. Semantic links now receive independent declaration observation and ingestion; endpoint times do not backdate them, and receipt coverage counts links separately. Native #701 regression separates old source time from later support declaration, checks historical candidate admission, inclusive/exclusive observed and ingested cuts, event-time retrieval, replay, restart and restoration."
+        },
+        {
+          "id": "example:bounded-trace",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/bounded-trace.md",
+          "example_title": "Trace several destinations under one work budget",
+          "evidence": "The dependency and verification example teaches shared work limits, retained arrows, deduplicated relation indexes, temporal admission and honest cutoffs; it makes no answer-completeness claim."
+        },
+        {
+          "id": "example:evidence-seek",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "examples/evidence-seek.md",
+          "example_title": "Discover compatible evidence paths from a seed",
+          "evidence": "The native compiler and joint solver preserve witness position, exact label intersections, explicit identity, unknown clocks and complete proof indexes across pages. Frozen small controls compare the MCP result with the independent joint-path reference. Joint materialization controls cover typed shared sources, unknown/missing proof, transport parity, changed-body cursors and complete proof pagination."
+        },
+        {
+          "id": "advanced:audit-reference",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "topics/audit-reference.md",
+          "guide_title": "Audit reference: pagination, routes, dimensions and evidence joins",
+          "evidence": "The live Inspect contract returns executable continuation, minimum-progress and stale-selection restart calls, preserving the about boundary, object reuse and canonical proof. Receipt inspection uses the existing accepted-command index without creating a graph memory. Bounded multi-target Trace exposes actual discovery work and preserves source-backed edge direction in one snapshot. Temporal controls cover all four clocks, subsecond link arrival, canonical coordinate changes, inclusive instants, exclusive interval ends, unknown clocks, shared snapshot and pre-read node/edge budgets."
+        },
+        {
+          "id": "card:condense",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/condense.md",
+          "evidence": "The progressive Condense card teaches descriptor-bound canonical reading, source and card compare-and-set, and a fresh compact read without named expansion arguments."
+        },
+        {
+          "id": "card:curate",
+          "kind": "instruction",
+          "depth": "basic",
+          "text_file": "cards/curate.md",
+          "evidence": "The progressive Curate card teaches a frozen review, reading missing and suspect items, paging by review_token and declaring through kmp_write_memory with the agent's own why and evidence."
+        },
+        {
+          "id": "advanced:consolidation",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text_file": "topics/consolidation.md",
+          "evidence": "Native consolidation sources/write/read/project preserve versioned dependencies, literal quotes, canonical sources and explicit source-version clock filters. SQLite transaction checks and native CLI controls exercise stale reads, retries and immutable audits.",
+          "guide_title": "Use optional consolidated memory views"
         }
       ],
       "relations": [
+        {
+          "from": "gate:invocation",
+          "to": "verb:wake",
+          "rel": "qualifies_as",
+          "class": "constraint",
+          "why": "The invocation gate constrains when any verb may be called at all, wake included: memory is entered when it is asked for, not because it is installed.",
+          "evidence": "The MCP initialize instructions open with a memory-routing gate whose default is on_request."
+        },
         {
           "from": "verb:wake",
           "to": "overview",
@@ -118,12 +503,20 @@
           "evidence": "Wake returns current state; Ask retrieves evidence for the remaining non-temporal question."
         },
         {
+          "from": "verb:relate",
+          "to": "verb:ask",
+          "rel": "qualifies_as",
+          "class": "procedural",
+          "why": "Ask answers a question from evidence; relate reads the shape of what several abouts hold in a span without a question to rank by. The one is chosen when the user wants an answer, the other when the user wants to see how memories of different projects stand to each other.",
+          "evidence": "The live kmp_relate contract ranks nothing and returns coordinate relations declared by nobody; kmp_ask cites evidence for a question."
+        },
+        {
           "from": "verb:time",
           "to": "verb:ask",
           "rel": "corrects",
           "class": "procedural",
-          "why": "Temporal navigation corrects the route when the original request concerns change or a time boundary rather than semantic relevance.",
-          "evidence": "The live router contract gives temporal intent precedence over Ask."
+          "why": "Temporal navigation corrects the route when the original request asks what a period holds rather than for an answer; a semantic question that carries a date stays an Ask and stands where it was asked with as_of or interval.",
+          "evidence": "The live router contract gives temporal intent precedence over Ask in two shapes: enumeration through the temporal verbs, and a dated Ask bounded by as_of or interval."
         },
         {
           "from": "verb:audit",
@@ -190,12 +583,284 @@
           "evidence": "The live read responses expose has_more and an opaque next_cursor."
         },
         {
+          "from": "advanced:budgets",
+          "to": "advanced:pagination",
+          "rel": "qualifies_as",
+          "class": "constraint",
+          "why": "The stable response floor constrains byte-budget handling so a small valid ceiling cannot turn a bounded read into an error or silently erase its canonical object.",
+          "evidence": "The live projections return the stable floor with a warning and reserve invalid_argument for max_bytes values below 512."
+        },
+        {
           "from": "advanced:lifecycle",
           "to": "verb:ask",
           "rel": "uses_background",
           "class": "evidential",
           "why": "An answer must preserve whether older evidence was replaced, remains conflicting or merely expired.",
           "evidence": "Ask proof exposes superseded, conflicts and expired separately."
+        },
+        {
+          "from": "advanced:summary",
+          "to": "verb:write",
+          "rel": "qualifies_as",
+          "class": "constraint",
+          "why": "A summary is part of the write, not of the read: it is judged where it is written and searched where it is asked, and the text it renders is what a reader is shown.",
+          "evidence": "kmp_ingest returns a warning per summary the lint refuses, and kmp_ask cites the entry text rather than the summary."
+        },
+        {
+          "from": "advanced:language",
+          "to": "verb:ask",
+          "rel": "qualifies_as",
+          "class": "constraint",
+          "why": "The same selection limit applies with or without a lexical bridge: render the semantic question in English, and only if it returns UNKNOWN or irrelevant evidence re-ask at most once in the user's own words. Preserve evidence and identifiers rather than translating the stored proof.",
+          "evidence": "The live tool instructions prescribe the English rendering plus at most one re-ask in the user's own words. asked_as carries the original question without being searched; bridge availability does not change the selection limit."
+        },
+        {
+          "from": "example:decision-history",
+          "to": "verb:write",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The worked history applies the writer contract to explicit source evidence, then audits the resulting decision and its replacement in time.",
+          "evidence": "The example inspects returned refs before linking, uses chosen_because and supersedes with distinct why and evidence, and compares validity at two instants."
+        },
+        {
+          "from": "examples:index",
+          "to": "verb:write",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The catalogue routes a writer from the operating contract to one source-based lesson without requiring expansion of every example.",
+          "evidence": "It names exact prerequisite and lesson refs and distinguishes compact context from complete inspected evidence."
+        },
+        {
+          "from": "example:alias-ownership",
+          "to": "examples:index",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The alias lesson is a catalogue member that applies identity and lifecycle distinctions to sources from one registry.",
+          "evidence": "Its calls inspect the identity target, maintain labels separately and recover the account assignment at two dates."
+        },
+        {
+          "from": "advanced:repository",
+          "to": "overview",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This topic extends the entry when repository maintenance or diagnosis is needed.",
+          "evidence": "The body preserves the corresponding reviewed memory skill instructions."
+        },
+        {
+          "from": "advanced:errors",
+          "to": "overview",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This topic extends the entry when repository maintenance or diagnosis is needed.",
+          "evidence": "The body preserves the corresponding reviewed memory skill instructions."
+        },
+        {
+          "from": "example:distributed-incident",
+          "to": "examples:index",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The distributed lesson extends identity review to two owning abouts and follows the linked event in time.",
+          "evidence": "The lesson rejects unsupported proposals and cross-about follows, then traces a source-backed equivalence without changing the original reports."
+        },
+        {
+          "from": "example:four-clocks",
+          "to": "verb:time",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The permit lesson applies the temporal verb contract to separate signing, observation, actual ingestion and validity, then zooms to the same proof.",
+          "evidence": "The source clock table and native calls compare the same permit at D2 on all four axes and capture both boundaries of a half-open occurred interval."
+        },
+        {
+          "from": "example:quantities",
+          "to": "advanced:relations",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The settlement lesson uses operand, correction, identity and exclusion relations to retain the proof behind a calculated subtotal.",
+          "evidence": "The total links only the two included operands; the separate exclusion audit links the replaced invoice, duplicate, void and foreign currency to their sources."
+        },
+        {
+          "from": "example:late-conflict",
+          "to": "advanced:lifecycle",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The shift review distinguishes a live contradiction from a later declared replacement and reads both at their observed instants.",
+          "evidence": "R1 and R2 remain contradictory before L1 and D1 arrive; the later resolution supersedes R2 and P1 while an earlier observed recall retains their prior state."
+        },
+        {
+          "from": "example:labels-negation",
+          "to": "advanced:scope",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The LEX-7 lesson uses whole-entry selectors to distinguish component synonyms from matching environment, owner and check conditions.",
+          "evidence": "The six-memory component catalogue narrows to three production RUN-7 reports, one staging report or the later RUN-8 decision; exists and notin separate a missing environment from a known one."
+        },
+        {
+          "from": "example:budget-proof",
+          "to": "advanced:budgets",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The packet separates byte floors, selection limits and pending pages before reading or auditing proof.",
+          "evidence": "The lesson preserves exact temporal and trace cursors and resumes a stable-floor inspection at its reported complete size."
+        },
+        {
+          "from": "example:shared-resumption",
+          "to": "verb:view",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The handoff applies shared-view revision and idempotency rules after recovering durable memory in a fresh reader process.",
+          "evidence": "The reader observes the human clock and selection, rejects a stale move and focuses the proof without replacing that frame."
+        },
+        {
+          "from": "example:preference-delta",
+          "to": "verb:write",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This case applies the writer contract to explicit sources and reads every existing relation target.",
+          "evidence": "P1 preference, D1 default and D2 replacement preserve before/after and the writer-declared delta links."
+        },
+        {
+          "from": "example:workflow-proof",
+          "to": "verb:write",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This case applies the writer contract to explicit sources and reads every existing relation target.",
+          "evidence": "Independent fictional sources justify causal, motivational and constraint links without broadening approval or measurement scope."
+        },
+        {
+          "from": "example:structure-parts",
+          "to": "verb:write",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This case applies the writer contract to explicit sources and reads every existing relation target.",
+          "evidence": "Declared plan, roster, environment and settlement show structural relations alongside distinct component, contribution and category evidence."
+        },
+        {
+          "from": "example:canonical-ingest",
+          "to": "verb:write",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This case applies the writer contract to explicit sources and reads every existing relation target.",
+          "evidence": "A deliberately compiled writer preview is absent before ingest and preserves refs, clocks and proof on canonical replay. Coordinate ownership explains preservation of a redundant contains_entry declaration and refusal when its membership cannot be resolved; regression #576 exercises committed MCP and export/import."
+        },
+        {
+          "from": "card:wake",
+          "to": "verb:wake",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic wake returns an inspect action for verb:wake."
+        },
+        {
+          "from": "card:write",
+          "to": "verb:write",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic write returns an inspect action for verb:write."
+        },
+        {
+          "from": "card:ask",
+          "to": "verb:ask",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic ask returns an inspect action for verb:ask."
+        },
+        {
+          "from": "card:time",
+          "to": "verb:time",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic time returns an inspect action for verb:time."
+        },
+        {
+          "from": "card:audit",
+          "to": "verb:audit",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic audit returns an inspect action for verb:audit."
+        },
+        {
+          "from": "card:relate",
+          "to": "verb:relate",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic relate returns an inspect action for verb:relate."
+        },
+        {
+          "from": "card:view",
+          "to": "verb:view",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic view returns an inspect action for verb:view."
+        },
+        {
+          "from": "card:guide",
+          "to": "verb:guide",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The short starting card links to the extended verb for further explanation.",
+          "evidence": "kmp_guide topic guide returns an inspect action for verb:guide."
+        },
+        {
+          "from": "example:evidence-seek",
+          "to": "verb:audit",
+          "rel": "explains",
+          "class": "evidential",
+          "why": "The worked lesson shows seed-based joint proof discovery and its uncertainty states.",
+          "evidence": "The lesson provides simple verification/permission, explicit identity, ordered proof, temporal and partial-result calls."
+        },
+        {
+          "from": "verb:audit",
+          "to": "advanced:audit-reference",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The verb routes detailed pagination, routing and join questions to the retained reference.",
+          "evidence": "The source guide names this exact reference; kmp_inspect reads the linked lesson."
+        },
+        {
+          "from": "card:condense",
+          "to": "verb:condense",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The starting card links to extended Condense guidance.",
+          "evidence": "The source guide names this exact reference; kmp_inspect reads the linked lesson."
+        },
+        {
+          "from": "verb:condense",
+          "to": "example:reader-cards",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The example executes the complete descriptor, expansion, card and reuse sequence.",
+          "evidence": "The source guide names this exact reference; kmp_inspect reads the linked lesson."
+        },
+        {
+          "from": "card:curate",
+          "to": "verb:curate",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The starting card links to extended Curate guidance.",
+          "evidence": "The source guide names this exact reference; kmp_inspect reads the linked lesson."
+        },
+        {
+          "from": "verb:curate",
+          "to": "example:curate-review",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "The example executes the complete review, page, inspect and declare sequence.",
+          "evidence": "The source guide names this exact reference; kmp_inspect reads the linked lesson."
+        },
+        {
+          "from": "verb:audit",
+          "to": "example:reader-cards",
+          "rel": "follows",
+          "class": "procedural",
+          "why": "Trace body delivery and Condense reuse share one worked lesson.",
+          "evidence": "The source guide names this exact reference; kmp_inspect reads the linked lesson."
         }
       ]
     },
@@ -208,43 +873,57 @@
           "id": "welcome",
           "kind": "guide",
           "depth": "basic",
-          "text": "KMP remembers why. This is the human guide: five short ideas first, then the deeper mechanics when you want them. Ask your agent to run open:guide whenever you want this view back.",
+          "text": "KMP remembers why. This is the human guide: five short ideas first, then the deeper mechanics when you want them. Ask your agent to run open:guide whenever you want this view back. Trace can also search several known destinations with a shared work budget. A budget cutoff and a complete response page are different; routes describe stored links, not a complete answer.",
           "evidence": "This is the person-facing guide shipped with the KMP plugin."
         },
         {
           "id": "basic:memory",
           "kind": "concept",
           "depth": "basic",
-          "text": "KMP stores durable decisions and evidence, not transcripts. The useful unit is what changed, why it changed and what proves it.",
-          "evidence": "The public product contract defines memory as decisions and evidence rather than conversation logs."
+          "text": "KMP stores durable decisions and evidence, not transcripts. The useful unit is what changed, why it changed and what proves it. Before rich relations are saved, KMP gives the agent a compact view of related stored facts. The agent reviews that context and continues or corrects the proposal. This is an agent step, not a request for you to approve every write; it does not prove that the agent understood the sources. When following selected evidence paths, the agent can fetch their records and shared sources together from one consistent read. Missing or uncertain proof remains visible; fetched sources still require interpretation.",
+          "evidence": "The public product contract defines memory as decisions and evidence rather than conversation logs. Native neighborhood checks distinguish a pending review from an accepted write and refresh changed context."
         },
         {
           "id": "basic:local",
           "kind": "concept",
           "depth": "basic",
-          "text": "Embedded KMP runs on your machine. Codex and Claude Code can use the same local SQLite store; no KMP account or hosted memory service is required.",
-          "evidence": "The embedded engine selects SQLite in WAL mode and the viewer binds to loopback."
+          "text": "Embedded KMP runs on your machine. Codex, Claude Code and Hermes Agent can use the same local SQLite store; no KMP account or hosted memory service is required. Which store that is follows one order: the KMP_MCP_DATA_DIR environment variable, then the nearest project root (a git checkout, whose worktrees share its store, or a directory that already holds a .kernel store), then the selection you save with kmp-mcp config memory-store, then the per-user default. Each MCP session names the store it opened and the rule that chose it in its instructions, and every kmp_wake carries it as store, a not-found refusal included, so an empty wake reads as empty in that store rather than empty everywhere. A saved selection lives in your config file, so it survives restarts with no environment variable and no launcher script, and kmp-mcp config shows the saved selection, the effective one and which rule won. kmp-mcp memories lists every store the machine knows, how each is reached (env, project, worktree, saved, user or unreachable), its format and every about inside with its event count, reading each without opening it for use; every command that opens a store adds it to that list, and kmp-mcp memories register <absolute path> adds an existing one by hand. A valid explicit environment override works even if the saved selection is invalid; config and doctor report that unused setting for repair. Without an override, an invalid saved selection stops startup. KMP never migrates, converts or overwrites a store it cannot open: it refuses the selection, says why, and leaves every file where it was. New stores use format 4; opening a supported format-3 store upgrades it. Optional TypeSafe Jev judgments send selected text to its configured service, while the default embedded path needs no external model. Current main after v0.24.0 adds Store config to info and doctor: off (absent) describes a missing optional file, so the feature keeps its default; it does not necessarily turn that feature off.",
+          "evidence": "The embedded engine selects SQLite in WAL mode and the viewer binds to loopback. Selection is proved end to end through the binary: the environment override beats everything, project discovery beats a saved selection, a git worktree opens its main checkout's store, a saved selection beats the per-user default, and an incompatible store is refused with its old bytes intact."
+        },
+        {
+          "id": "basic:crossing-languages",
+          "kind": "concept",
+          "depth": "basic",
+          "text": "Memory keeps the words its writer stored. The writer can also add an English search summary, summary_en, so an English question can reach memory written in another language without translating the original. KMP searches a valid summary but cites the original text. An optional table of word pairs adds another way to cross languages; setup installs it once for your machine and doctor reports whether it is available. Without the table, stored text and valid summaries remain searchable. None of these search paths runs a language model.",
+          "evidence": "A citation reached through the writer's summary carries matched_via: summary and summary_terms while preserving the original text. A citation reached through a lexical bridge names its word pairs in bridged_terms, at medium confidence at most."
         },
         {
           "id": "basic:inherit",
           "kind": "concept",
           "depth": "basic",
-          "text": "A repository can publish selected project memory in .kmp/memory.jsonl. A clone inherits that reviewed bundle; private abouts in a shared user store stay out unless explicitly exported.",
-          "evidence": "Format-2 filtered export names exact abouts and import replays only the committed event stream."
+          "text": "A repository can publish selected project memory in .kmp/memory.jsonl. A clone inherits that reviewed bundle; private abouts in a shared user store stay out unless explicitly exported, and release-owned KMP guides stay local because the installed plugin supplies them.",
+          "evidence": "Commit-native publication and Doctor apply the same authored-memory projection, excluding guide:kmp and guide:kmp-agent while explicit backup export retains the full store."
         },
         {
           "id": "basic:open",
           "kind": "instruction",
           "depth": "basic",
-          "text": "Say: show me the memory behind this decision. The agent retrieves the evidence, opens ChronoLoom and moves the shared view to the relevant entry or proof path. You can click, filter, pan, undo or take control.",
-          "evidence": "The three semantic view tools share one revisioned ChronoLoom state between agent and person."
+          "text": "Say: show me the memory behind this decision. Your agent retrieves the evidence and guides the same view you see. ChronoLoom names who moved it and why. Take control keeps the current frame; Undo reverses the last memory-view move. Use the clock chips to choose Occurred, Observed, Ingested or Validity explicitly. Ask your agent to draw the whole path from one fact to another: declared steps are solid, steps TypeSafe Jev proposes are dashed with their type and confidence. Declare on a proposed step takes your own why and evidence and composes the kmp_curate call for the agent to run; the loom itself never writes. Compare abouts as 3D planes or flatten the same scene, filter by labels, and use the grouped controls in the shared time strip to move, resize, focus or revisit the window. If the inspector is empty, pick a memory in the scene, results or picker to see its record, clocks and relations; an empty scene explains whether to widen the window, choose another clock or clear filters. A loading indicator stays visible while clocks, layers or evidence update; the content dims and fades back in when ready. Reduced motion keeps the status without animation. Dragging and sliders follow the latest position; release keeps the final interval. Search results refresh after a short typing pause. Escape clears search immediately.",
+          "evidence": "The three semantic view tools share one revisioned ChronoLoom state between agent and person. Ref framing reads scoped headers and coordinates in one bounded snapshot through ReadNodes; the HTTP and app-only transports expose incomplete coordinates and unavailable refs explicitly. Each ReadNodes batch accepts at most 64 refs and touches at most 4096 distinct nodes, counting requested refs and coordinate scopes. Larger foci bind successive batches to one revision under a shared 32768-edge budget. The browser retries a changed snapshot once from the new revision; a second conflict or an incomplete coordinate budget preserves the previous window. Unapplied agent intents are reported and consumed rather than silently dropped or replayed on each poll. HTTP uses the viewer coordinate renderer and MCP uses its existing coordinate renderer; the domain carries typed GraphReadRevision identities. Repeated identical visual projections reuse a service-local bounded cache only under a certified complete graph/body snapshot revision and the full query. Tests compare cached and uncached outputs across clocks, labels, ranges, pages, peer writes and cross-about changes; HTTP capability checks and no-store responses remain outside the cache. ChronoLoom interaction checks preserve directed arrows, reference picking, layer and label identity, final rapid-input state, and resource disposal. Browser controls exercise the bundled WebGL renderer; native routes expose the same retained-scene modules in both viewer surfaces."
         },
         {
           "id": "advanced:clocks",
           "kind": "concept",
           "depth": "advanced",
-          "text": "The difference between occurred and observed time is the event boundary versus the knowledge boundary. KMP keeps four clocks because they answer different questions. Occurred time is when the event happened. Observed time is when a source or agent learned it. Ingested time is when the kernel committed it. Validity is the interval in which a state applies.",
-          "evidence": "The memory coordinate contract stores occurred_at, observed_at, ingested_at, valid_from and exclusive valid_until separately."
+          "text": "The difference between occurred and observed time is the event boundary versus the knowledge boundary. KMP keeps four clocks because they answer different questions. Occurred time is when the event happened. Observed time is when a source or agent learned it. Ingested time is when the kernel committed it. Validity is the interval in which a state applies. For new semantic writes, omitted or null observed_at equals the exact ingested_at assigned by KMP. Set an explicit observation only when the source gives that time. Unknown occurred_at stays absent; observation is never copied into event time. Root clocks are inherited by records; a record null clears the inherited clock. Equal event and observation times are valid if the source supports both. A shared observation does not imply simultaneous events. One report may describe an execution and a later successful check. Ask for guide:kmp-agent:example:event-separation: the earlier event must not inherit the later result, even if both were learned together. Each semantic member dates its fact, generated evidence support and connect_to declarations at its effective observation: inherited packet observation, member override, or exact ingestion for null. Target clocks do not date a new declaration; endpoint occurrence and validity are not inherited. Read those dates in relation.clocks and compare them with the separate endpoint dates. ChronoLoom displays them in relation detail. Unknown historical clocks remain unknown. Label memberships also carry clocks: a label learned tomorrow cannot qualify an entry in an observed Goto today. Coordinates and label predicates obey the selected temporal boundary.",
+          "evidence": "The memory coordinate contract stores occurred_at, observed_at, ingested_at, valid_from and exclusive valid_until separately. Native writer, Trace, Wake, receipt replay/import and viewer tests preserve independent relation clocks and exclude late declarations between old endpoints."
+        },
+        {
+          "id": "advanced:budgets",
+          "kind": "concept",
+          "depth": "advanced",
+          "text": "budget.max_bytes limits how much structured response a host receives. If a valid ceiling is smaller than KMP's minimal honest response, KMP returns that stable floor with a warning naming both sizes instead of failing or hiding the canonical object. Values below 512 bytes are invalid; raise the ceiling only when you need richer detail. A cited memory stays identifiable when its preview is shortened. Ask and Wake now return the call for continuing (a continuation handle) or restoring a shortened preview (the complete call). A restoration starts a new read with enough bytes; its agent discards the partial reconstruction. It can also inspect the cited memory for its full text. Finishing expansion alone does not prove the preview is complete. An optional local semantic encoder can help the embedded engine find differently worded sources. Similarity is shown as retrieval evidence and never establishes an answer on its own; an unavailable encoder leaves ordinary retrieval available with a warning. Ask keeps cited memories first and returns additional evidence in retrieval order, including when it spans several pages. If a page cannot fit the next item, KMP says that it cannot advance: allow a larger response or keep the result explicitly partial. An agent that retained the first inspected object can request later pages with page.repeat_object=false. KMP sends its ref and the remaining proof, marks object_reused, and rejects the continuation if the object or selected evidence changed. Registered agents can receive a short continuation identifier instead of copying a long call. It retains one exact read, including the next-page budget. Replay repeats that page; its next action advances. These bounded metadata records survive reconnect but are not durable memory or access permissions. Missing or expired identifiers require a fresh read; the complete action remains available when a short identifier cannot be retained. A host can opt into sharing repeated passages. The response then prints an identical passage once and refers to it from each original record. Source identity, authorship, times and support remain distinct even when wording is equal. The agent resolves short passage names and citation names using separate tables in that response, then cites the original memory or evidence ref. The original record definitions stay explicit; a short citation never combines source identities. This only changes presentation: it does not merge facts, certify a complete proof or silently discard qualifiers. Partly overlapping quotations remain separate when source boundaries are not known. A host can also compose captured read groups using kmp-mcp context project, and restore admitted groups with context expand. Neither command opens memory. If the host knows a quote’s exact source and boundaries, overlapping quotes may share ordered fragments. The reader joins those fragments without adding words or separators; source identities remain separate. An omitted source stays omitted, and its read remains listed. This saves representation space only when the complete encoding is smaller; it does not establish a complete proof. Para buscar pruebas desde un hecho sin conocer sus destinos, search.seek reúne caminos de relaciones declaradas. Puede exigir que verificación y permiso pertenezcan al mismo evento, o que dos recorridos lleguen a la misma referencia. Conserva alternativas y evidencia desconocida; no determina verdad. Los límites de trabajo siguen separados del tamaño de las páginas. La lección del agente example:evidence-seek muestra los casos simples y avanzados. Si no se conocen los pasos intermedios, via:\"context\" descubre rutas mínimas hasta los orígenes de la relación buscada, conservando empates y sentidos. Son pistas para revisar, no una demostración sobre el hecho inicial; no sustituye la lectura de las fuentes. Trace ofrece dos modos excluyentes: destinos conocidos con to, o necesidades de evidencia con seek. Solo comparten los límites de trabajo; un rechazo enumera juntos los campos de modos mezclados. Una copia verificada y una publicación autorizada son acciones distintas: igualar sus anclas cambia la pregunta. Solo exigir esa igualdad si se pide la misma acción. Elegir explícitamente reloj y corte para preguntas históricas; un resultado UNKNOWN no explica por sí solo su causa. Una lectura parcial abre su texto principal con READ_INCOMPLETE, incluso sin agente registrado. Pueden estar todas las entradas seleccionadas y faltar relaciones de su prueba: hay que completar la acción de lectura devuelta. Otro salto histórico tras completar la página inicia una selección diferente. El aviso no cambia las fuentes ni certifica suficiencia de la evidencia.",
+          "evidence": "The shipped read contracts preserve a stable response floor and make every byte-budget exception visible as a warning."
         },
         {
           "id": "advanced:supersession",
@@ -258,20 +937,27 @@
           "kind": "concept",
           "depth": "advanced",
           "text": "Named snapshots are deliberate recovery points. Content-addressed exports are deterministic heads. Bundle merge only fast-forwards identical history or an exact prefix; KMP refuses to invent order for divergent branches.",
-          "evidence": "The format-2 bundle contract binds content digest, about coverage and event range before import or merge."
+          "evidence": "The format-3 bundle contract binds content digest, about coverage and event range before import or merge."
+        },
+        {
+          "id": "advanced:import-abouts",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "To use memory from another workspace without replacing this one, run kmp-mcp import --from <store-or-bundle> --about <about>, repeating --about for each about you want. The source store is only read; a bundle is verified first. Into the store KMP opens here, an about that is missing is imported, one already present with the same events is left unchanged, and one that holds an exact earlier part of the source's history is extended with the rest. A different history, an about the source lacks, or a link to memory neither store holds refuses the whole import and writes nothing, so running it again is safe. Plain kmp-mcp import <file> still restores a bundle into an empty store.",
+          "evidence": "import_abouts compares each (about, role) event stream by revision and content hash, refuses the first divergence and destination-ahead streams, and appends the missing events with their projections in one SQLite write transaction; the source store is opened with read-only SQLite connections and exported through the filtered export path."
         },
         {
           "id": "advanced:shared-store",
           "kind": "concept",
           "depth": "advanced",
-          "text": "Two hosts can share one embedded store. SQLite WAL allows independent Codex and Claude processes to read and write while optimistic revisions and idempotency protect semantic updates.",
+          "text": "Two hosts can share one embedded store. SQLite WAL allows independent Codex, Claude and Hermes processes to read and write while optimistic revisions and idempotency protect semantic updates. Each memory read sees one consistent graph, body and evidence state even while another host writes. A later call can see the later state; a continuation does not hold a transaction open.",
           "evidence": "The embedded concurrency gates run two processes against one SQLite store and require both writers to enter without losing events."
         },
         {
           "id": "advanced:publish",
           "kind": "constraint",
           "depth": "advanced",
-          "text": "Committing a bundle publishes the selected abouts to everyone who can read the repository. Export exact abouts deliberately; a full export from a shared user store can contain unrelated or private memory.",
+          "text": "Pushing or sharing a committed bundle publishes the selected abouts to everyone who can read that repository. A local commit alone does not transmit memory. Export exact abouts deliberately; a full export from a shared user store can contain unrelated or private memory.",
           "evidence": "Filtered export accepts repeatable exact abouts and refuses missing selections before writing the destination."
         },
         {
@@ -287,6 +973,91 @@
           "depth": "advanced",
           "text": "Use a plain file when the information is canonical prose, a large artifact or something people should edit directly. Use KMP when time, evidence, typed relations, supersession or cross-session recovery are part of the meaning.",
           "evidence": "KMP is graph-temporal operational memory; it is not a replacement for source files or documentation."
+        },
+        {
+          "id": "advanced:decision-history",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "A decision can change without losing its history. In the worked Atlas example, offline work is required on September 1; SQLite is chosen for that reason on September 2. A central shared journal is required on September 5, and a later explicit decision replaces SQLite with PostgreSQL. The agent guide entry guide:kmp-agent:example:decision-history contains the sources and complete calls. Ask your agent to run this fictional example in an isolated store and open its about example:guide:decision-history in ChronoLoom. Select the new decision at Memories detail: one evidential link explains what it replaces, and one motivational link explains why it was chosen. Follow each to its original evidence. Compare September 3 with September 6 using an explicit clock; the new choice must not be projected into the past. Two memory kinds and two relation classes are justified by these sources. This lesson does not cover every kind or relationship, nor establish that a new writer LLM has learned to use KMP.",
+          "evidence": "The agent lesson includes four dated fictional sources, constraint and decision memories, explicit replacement and motivation links, temporal reads and a shared-view intent."
+        },
+        {
+          "id": "advanced:alias-ownership",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "An alias is not an account owner. In the second worked example, a signed source identifies Elena Vega as Nora, while an unqualified visitor-log mention of Nora remains unresolved. Separately, the account @oak is assigned to Jon and later to Rui. The assignment is replaced; Jon and Rui remain distinct people. Ask your agent to open the isolated example:guide:alias-ownership story in ChronoLoom after reading guide:kmp-agent:example:alias-ownership. Follow the same_entity_as link for the proven alias and the supersedes link for the account change; inspect their sources. Filtering the label Nora also includes the unidentified visitor, so a label is not identity proof. The example uses three observations and two assignment decisions because the sources justify them. It does not measure whether a new LLM will avoid an unsupported merge.",
+          "evidence": "The agent lesson preserves five literal fictional sources, the unresolved mention, separate identity and replacement links, and before/after assignment evidence."
+        },
+        {
+          "id": "advanced:distributed-incident",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "INC-17 contains an outage EVT-17-F and its later recovery EVT-17-R. Support reports the outage first; project later audits that same outage. Ask the agent to read guide:kmp-agent:example:distributed-incident and run it in an isolated store. Open example:guide:incident-support in ChronoLoom and add example:guide:incident-project to the projection. Compare the initial observed view on September 1 with the late audit and reconciliation on September 2. Two observations, an error path and a success path have distinct roles. Shared labels find candidate pairs; the source-backed same_event_as link identifies only the two outage reports. Select its new support declaration, follow the edge and inspect its literal evidence. The recovery remains a separate event. Switch from observed to occurred to see why evidence learned on September 2 can describe an event on September 1; do not infer earlier knowledge from the event clock. The two abouts keep their original texts and ownership. This authored native example does not measure a new LLM writer.",
+          "evidence": "The lesson preserves four fictional sources, rejects unproved crossing and unsupported relation types, and compares per-about and shared timelines before and after an explicit equivalence."
+        },
+        {
+          "id": "advanced:four-clocks",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "The TEMP-4 permit is signed on day one, first observed by a reviewer on day three and recorded by KMP on the real execution day four. It applies from day two until day five, exclusive. Ask the agent to read guide:kmp-agent:example:four-clocks and resolve its calendar before running the isolated example:guide:four-clocks. Start in ChronoLoom at Atlas, choose the clock chip for Occurred and narrow the window with the grouped move/size controls, then choose Memories to inspect the permit and the signature check that supports it. Change the same window to Observed: it is empty until you move it to day three. Ingested shows the actual run day; Validity on day two shows the applicable permit, not earlier knowledge of it. An entry without a position on the selected clock stays out of the scene and the clock chips show the missing count; the empty inspector tells you where to select a memory. Follow the support edge and read the separate source and rationale. Moving the viewer does not change a native memory query or rewrite its clocks. The exercise uses a decision, an observation and feedback because the three sources have those roles; it does not measure a new writer LLM.",
+          "evidence": "The agent lesson resolves relative source dates from the actual UTC clock, keeps ingestion assigned by the kernel, and checks explicit read axes, interval boundaries and shared-view state."
+        },
+        {
+          "id": "advanced:quantities",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "TRIP-7 has a transport charge, a corrected hotel invoice, a duplicate copy, a voided meal and a separate USD charge. Ask the agent to read guide:kmp-agent:example:quantities and run the isolated lesson. In ChronoLoom start on September 1 observed time, before correction and cancellation. Then show the EUR source slice: six documents are not six expenses. Follow corrects from H-1 to H-0, same_event_as from H-1-C to H-1, and updates_state from the void to the meal. Finally select CALC-7: total_of points to 20.00 EUR and 35.00 EUR, while the incoming exclusion audit explains what was omitted and why. Follow that audit to its source documents. The subtotal is 55.00 EUR; 7.00 USD stays separate without a conversion rate. The agent calculates from inspected sources; KMP stores the value and proof, and writer acceptance does not check arithmetic. Moving the view does not rewrite earlier receipts or make the later total known sooner. This authored replay is not an LLM learning benchmark.",
+          "evidence": "The source-backed agent lesson records nine original memories and two new derived/audit memories, preserves original clocks, checks decimal operands and frames three stages with explicit observed intervals."
+        },
+        {
+          "id": "advanced:late-conflict",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "SHIFT-6 has two reports assigning sole responsibility to Maya and Zoe for the same interval. Ask the agent to read guide:kmp-agent:example:late-conflict and run the isolated lesson. In ChronoLoom start with R1, then show R2 and the unresolved review P1 on observed time before September 4. Select R2 to inspect contradicts and P1 to follow its two motivational links. The supported conclusion then is that the operator cannot be determined. A signed record L1 arrives September 5 for the September 1 shift; event time can show it beside the older reports, but it was not known sooner. The later review D1 confirms Maya, verified_by L1, and supersedes only R2 and P1. Follow both replacement targets and retain their original evidence. Compare historical observed recall before and after resolution; the panel labelled Current record includes later status and links, while the scene retains its selected clock and UTC window. Receipt order alone never chooses a winner. This authored example checks native behavior, not writer LLM learning.",
+          "evidence": "The source-backed lesson preserves five distinct memories, the before/after conflict proof and the original R2 clocks, with four temporal view stages."
+        },
+        {
+          "id": "advanced:labels-negation",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "LEX-7 gives bitácora and journal one component meaning through an explicit glossary. Ask the agent to read guide:kmp-agent:example:labels-negation and run the isolated lesson. Review S1 before and after relabelling: its Spanish text and original clocks stay intact, and English search returns the Spanish source. In the production RUN-7 view, S2 restates S1 while S3 says not enabled under the same instant and owner. Follow both relations; later receipt does not resolve their conflict. Inspect S4 in staging separately, then show all six component memories, including glossary constraint G1 and later RUN-8 decision D1. Opposite words from different environments or times do not create a universal contradiction. Labels group candidates; source-backed relations express what the writer knows. The Current record panel can show later links while the scene uses its selected observed window. This authored review does not measure LLM learning.",
+          "evidence": "The explicit glossary justifies replacing one component label, not rewriting the memory. Six native selector traversals preserve different conditions and an unresolved production disagreement."
+        },
+        {
+          "id": "advanced:budget-proof",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "PACK-8 contains an export requirement, decision, test and result, plus unrelated warehouse lighting. Ask the agent to read guide:kmp-agent:example:budget-proof. Review five typed memories in ChronoLoom and follow R1 verified_by T1, T1 uses_background D1 and D1 chosen_because C1. The temporal reader captures the inclusive start and continues two pages before excluding the exact end. A partial inspection preserves its object but may still omit proof: the agent must report the exact pending continuation and needed size. The viewer has its own reads and does not complete that MCP page. Packet membership creates no path to X1. Neither the sources nor two semantic UNKNOWN selections identify who authorized PURGE-9; stop rather than invent an approver. This authored native review does not measure independent LLM learning.",
+          "evidence": "The source-backed lesson retains five memories, typed path evidence, partial checkpoints and complete continuations with no semantic calls after the second UNKNOWN."
+        },
+        {
+          "id": "advanced:shared-resumption",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "HND-9 lets a fresh agent recover a saved constraint, decision and review request. Ask for guide:kmp-agent:example:shared-resumption. In ChronoLoom choose Observed and select C1. The agent reads your current revision, audits D1 to C1 and changes its focus without blindly restoring its old window. Repeating a completed intent returns the current view; a stale new intent conflicts. The view belongs to its serving process, while the source memories survive a fresh client. A click is not approval: separate source F1 confirms only the selection and leaves the offline test pending. Four source types and their evidence remain inspectable. The authored replay uses two native clients; independent LLM learning needs a separate evaluation.",
+          "evidence": "The lesson retains original clocks and sources, retries one logical decision without duplicating it, and distinguishes explicit feedback from human view gestures."
+        },
+        {
+          "id": "basic:small-examples",
+          "kind": "instruction",
+          "depth": "basic",
+          "text": "Start with two source lines: a journal must accept writes offline, and SQLite is chosen for that reason. Ask your agent to read guide:kmp-agent:example:first-decision, record those two typed memories and show their chosen_because relation in ChronoLoom. The example proves a recorded choice, not a completed offline test. For a particular tool, memory kind or relation, use guide:kmp-agent:examples:by-capability. The other basic cases distinguish preference from requirement, approval from execution, and membership from evidence of a result.",
+          "evidence": "The first-decision lesson and the indexed basic cases contain explicit sources, native requests and limits; independent LLM learning remains a separate evaluation."
+        },
+        {
+          "id": "advanced:reader-cards",
+          "kind": "concept",
+          "depth": "advanced",
+          "text": "A reader can keep a short phrase for a body it has read, then explore the same paths using that phrase. KMP binds the card to the exact stored body version. It keeps evidence available for deliberate expansion; stale, absent or historically unavailable cards show no substitute prose. Cards help orientation, never prove a claim. Ask your agent for guide:kmp-agent:example:reader-cards. Reuse can save context on large repeated sources; writing a card for a small body can cost more overall. Compact proof reads include proof.condense_candidates: a bounded list of large absent/stale bodies ranked by selected route/group sharing and size, with exact source and card expectations to copy after reading the body. Valid, post-cut and small bodies are excluded; the size floor is a heuristic, not a savings guarantee. Seek sharing counts only groups with known clocks and all binding witnesses; groups retained for review do not count. The list is identical on every page and never establishes proof completeness.",
+          "evidence": "Trace distinguishes canonical body delivery from derived cards. Condense checks source revision/digest and card compare-and-set; source materialization and relations retain their provenance."
+        },
+        {
+          "id": "advanced:consolidation",
+          "kind": "instruction",
+          "depth": "advanced",
+          "text": "Optional consolidated views group compatible writer-declared claims while retaining their exact sources and past revisions. The kernel validates quotes, dependency versions and clocks; it does not decide that two sentences mean the same thing. A changed source or direct relation withdraws the current view until a writer refreshes it. The local CLI offers consolidation sources, write, read and project. This is a separate opt-in view, not an automatic change to Ask, native memory, or the MCP tool catalogue. Ask your agent for guide:kmp-agent:advanced:consolidation.",
+          "evidence": "ConsolidationApplicationService composes the native derived-view repository; canonical memory operations remain unchanged.",
+          "guide_title": "Consolidated views and their sources"
         }
       ],
       "relations": [
@@ -331,6 +1102,14 @@
           "evidence": "Memory entries carry distinct occurrence, observation, ingestion and validity coordinates."
         },
         {
+          "from": "advanced:budgets",
+          "to": "basic:memory",
+          "rel": "qualifies_as",
+          "class": "constraint",
+          "why": "The byte-budget floor constrains how durable memory can be shortened without hiding the minimal canonical response from the person or host.",
+          "evidence": "Valid ceilings below the stable floor return that floor with an explicit warning; only values below 512 are rejected."
+        },
+        {
           "from": "advanced:supersession",
           "to": "advanced:clocks",
           "rel": "uses_background",
@@ -345,6 +1124,14 @@
           "class": "evidential",
           "why": "Snapshot and merge rules deepen the basic repository inheritance story.",
           "evidence": "Bundles are verified portable event histories rather than database copies."
+        },
+        {
+          "from": "advanced:import-abouts",
+          "to": "advanced:snapshots",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "Importing exact abouts into a live store applies the same exact-prefix rule as bundle merge, per about.",
+          "evidence": "Identical streams are a no-op, an exact prefix is extended, and divergent histories are refused."
         },
         {
           "from": "advanced:shared-store",
@@ -377,6 +1164,78 @@
           "class": "constraint",
           "why": "A good memory system must say what should remain ordinary documentation.",
           "evidence": "Canonical prose and large directly edited artifacts do not need graph-temporal semantics."
+        },
+        {
+          "from": "advanced:decision-history",
+          "to": "welcome",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This worked history gives the person a concrete path from the human introduction to the source, decision and later change.",
+          "evidence": "The human lesson points to the exact agent example and frames its two kinds and relation classes for inspection in ChronoLoom."
+        },
+        {
+          "from": "advanced:alias-ownership",
+          "to": "advanced:decision-history",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "This lesson builds on historical replacement to show why account reassignment differs from identity.",
+          "evidence": "The first lesson explains supersession; this one contrasts it with an explicitly evidenced person alias."
+        },
+        {
+          "from": "advanced:distributed-incident",
+          "to": "advanced:alias-ownership",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "After distinguishing person identity from account assignment, the human can inspect event identity between reports owned by two abouts.",
+          "evidence": "The distributed lesson distinguishes same_event_as from a shared incident label and from its separate recovery event."
+        },
+        {
+          "from": "advanced:four-clocks",
+          "to": "advanced:clocks",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The worked permit makes the four-clock distinction visible through a concrete source and zoom sequence.",
+          "evidence": "The same day-two cursor includes the permit on occurred and validity while excluding it on observed and ingested."
+        },
+        {
+          "from": "advanced:quantities",
+          "to": "advanced:four-clocks",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The settlement example uses the observed clock to separate earlier candidate documents from later correction, cancellation and calculation.",
+          "evidence": "The earlier observed view excludes the correction, duplicate and void; the final view adds the subtotal without altering that historical selection."
+        },
+        {
+          "from": "advanced:late-conflict",
+          "to": "advanced:four-clocks",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The late duty record concerns an earlier shift, so the human review must distinguish event time from knowledge at receipt time.",
+          "evidence": "L1 occurred on September 1 and was observed on September 5; D1 is a September 5 decision and must not be moved back to the shift."
+        },
+        {
+          "from": "advanced:labels-negation",
+          "to": "advanced:late-conflict",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "After reviewing late conflict resolution, the reader distinguishes a contradiction that remains unresolved from unrelated opposite states selected by labels.",
+          "evidence": "No LEX-7 source resolves S1 versus S3; staging and the later maintenance decision remain separate contexts."
+        },
+        {
+          "from": "advanced:budget-proof",
+          "to": "advanced:labels-negation",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "The earlier label lesson distinguishes selection from proof; the budget lesson adds the difference between a page, a selection cap and missing evidence.",
+          "evidence": "A shared PACK-8 label groups export and warehouse records without supplying a semantic relation or authorization."
+        },
+        {
+          "from": "advanced:shared-resumption",
+          "to": "advanced:budget-proof",
+          "rel": "uses_background",
+          "class": "evidential",
+          "why": "A correct handoff preserves pending work and proof limits as well as the current shared frame.",
+          "evidence": "H1 and F1 leave the offline test pending; completing a view move never creates a test report."
         }
       ]
     }

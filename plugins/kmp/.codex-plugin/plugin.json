@@ -1,6 +1,6 @@
 {
   "name": "kmp",
-  "version": "0.5.1",
+  "version": "0.25.0",
   "description": "Local-first agent memory that preserves what happened, when and why: wires the kmp MCP server, teaches the memory moves, opens memory in ChronoLoom, and diagnoses setup.",
   "author": {
     "name": "Underpass AI"
@@ -18,7 +18,10 @@
   "skills": "./skills/",
   "mcpServers": {
     "kmp": {
-      "command": "kmp-mcp"
+      "command": "kmp-mcp",
+      "env_vars": [
+        "KMP_MCP_DATA_DIR"
+      ]
     }
   },
   "interface": {
@@ -30,6 +33,7 @@
     "capabilities": [
       "Interactive"
     ],
+    "websiteURL": "https://underpassai.com/",
     "defaultPrompt": [
       "Recover what you know about this project before touching any file.",
       "Store this decision and its reasons in memory.",

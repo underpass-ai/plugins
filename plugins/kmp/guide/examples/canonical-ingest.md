@@ -1,0 +1,212 @@
+# Compile and replay a canonical memory packet
+
+Use kmp_write_memory for ordinary semantic writing. kmp_ingest is the lower
+boundary for a canonical packet whose refs, coordinates, relations and evidence
+are already known. This example deliberately inspects a compiled preview to
+teach that boundary; it does not add a preview to every ordinary write.
+
+These are fictional sources interpreted by the LLM author. The JSON envelopes
+are replay notation: send only `arguments`; copy every `${...}` binding from
+its named native response. The isolated replay checks storage and navigation,
+not independent LLM learning. Each write is a separate logical operation with
+its own idempotency key. All timestamps are UTC; ingestion uses the actual
+runtime clock. No source below states a validity interval.
+
+Canonical semantic relations may carry `clocks` with `occurred_at`,
+`observed_at`, `ingested_at`, `valid_from` and `valid_until`, independently of a
+label. Normally omit that group: KMP dates a new declaration using packet
+observation (or ingestion) and its actual ingestion time. Preserve explicit
+historical ingestion only when restoring canonical data; an unknown historical
+observation stays unknown. Explicit coordinate clocks, when supplied, must agree
+with the independent clocks. Structural memberships keep their clocks in
+`coordinate`. For example, a link learned on September 4 between two September 2
+memories has observed_at September 4; neither endpoint dates its declaration.
+This is a stored declaration clock, not inference of when its meaning became true.
+
+```json
+{"tool":"kmp_wake","save_as":"initial","expect_error":"not_found","arguments":{"about":"example:guide:canonical-ingest","budget":{"detail":"compact","max_bytes":20000}}}
+```
+
+## C1 — establish and inspect the packet dependency
+
+C1: STORE-5 requires the journal to accept writes without a network.
+
+```json
+{
+  "tool": "kmp_write_memory",
+  "save_as": "constraint",
+  "arguments": {
+    "about": "example:guide:canonical-ingest",
+    "actor": "guide-writer",
+    "source_kind": "human",
+    "idempotency_key": "guide-canonical-ingest:constraint:v1",
+    "labels": {
+      "case": [
+        "canonical-ingest"
+      ],
+      "agentic_process": [
+        "capability-examples"
+      ]
+    },
+    "occurred_at": "2026-09-02T09:01:00Z",
+    "observed_at": "2026-09-02T09:01:00Z",
+    "memories": [
+      {
+        "id": "current",
+        "kind": "constraint",
+        "summary": "C1: STORE-5 requires the journal to accept writes without a network.",
+        "evidence": "C1: STORE-5 requires the journal to accept writes without a network."
+      }
+    ]
+  }
+}
+```
+
+```json
+{"tool":"kmp_inspect","save_as":"constraint_read","arguments":{"about":"example:guide:canonical-ingest","ref":"${constraint.generated_refs.0}","budget":{"max_bytes":22000}}}
+```
+
+## D1 — validate a preview without committing it
+
+D1: STORE-5 chooses SQLite because C1 requires journal writes without a network.
+
+The author supplies the decision and its justified chosen_because relation.
+The explicit dry run exposes the canonical packet for inspection. Copy its
+returned memory, provenance, label policy and logical idempotency key; the
+following lookup must show that D1 has not been written yet. The packet still
+depends on C1 in this isolated store: it is not a portable bundle of every
+referenced object. A recipient missing C1 needs that dependency first.
+
+```json
+{
+  "tool": "kmp_write_memory",
+  "save_as": "preview_review",
+  "arguments": {
+    "about": "example:guide:canonical-ingest",
+    "actor": "guide-writer",
+    "source_kind": "human",
+    "idempotency_key": "guide-canonical-ingest:decision:v1",
+    "labels": {
+      "case": [
+        "canonical-ingest"
+      ],
+      "agentic_process": [
+        "capability-examples"
+      ]
+    },
+    "occurred_at": "2026-09-02T09:02:00Z",
+    "observed_at": "2026-09-02T09:03:00Z",
+    "read_context": {
+      "inspected_refs": [
+        "${constraint.generated_refs.0}"
+      ]
+    },
+    "options": {
+      "dry_run": true
+    },
+    "memories": [
+      {
+        "id": "current",
+        "kind": "decision",
+        "summary": "D1: STORE-5 chooses SQLite because C1 requires journal writes without a network.",
+        "evidence": "D1: STORE-5 chooses SQLite because C1 requires journal writes without a network.",
+        "connect_to": [
+          {
+            "ref": "${constraint.generated_refs.0}",
+            "rel": "chosen_because",
+            "class": "motivational",
+            "confidence": "high",
+            "why": "D1 explicitly chooses SQLite for the offline-write requirement recorded by C1.",
+            "evidence": "D1: STORE-5 chooses SQLite because C1 requires journal writes without a network."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+This returns `needs_review` without writing. Review the stored/proposed context
+and link directions against the sources above; expand relevant omissions.
+Resume this unchanged teaching proposal only after that review:
+
+```json
+{"tool":"kmp_write_memory","save_as":"preview","arguments":"${preview_review.next_actions.0.arguments}"}
+```
+
+```json
+{"tool":"kmp_inspect","save_as":"not_committed","expect_error":"not_found","arguments":{"about":"example:guide:canonical-ingest","ref":"${preview.generated_refs.0}"}}
+```
+
+The preview checks the selected store, including the existing C1 target. It
+reports `validation.scope=current_store` and `accepted=false`. It does not
+reserve labels, refs or sequence numbers; the later commit checks again.
+
+## Coordinate ownership
+
+The entry's `coordinates` already create its `contains_entry` memberships.
+Do not add another structural link just to put it on a label. If a canonical
+packet repeats `contains_entry` without a coordinate, KMP reuses the matching
+coordinate of the entry in that same packet, including its assigned sequence
+and ingestion clock. Without a matching membership it refuses the write
+before commit. For an existing memory, use `kmp_relabel` to change labels;
+an explicit membership link must carry its coordinate. A missing coordinate
+must never erase a memory's existing clocks.
+
+## Commit exactly the reviewed packet
+
+Set only the preview execution flag dry_run to false. The semantic content is the returned packet, with no rewritten text, reconstructed ref or guessed clock. Replay with the same logical key; a repeated import must not add a second D1.
+
+```json
+{"tool":"kmp_ingest","save_as":"ingested","arguments":{"about":"${preview.ingest_preview.about}","idempotency_key":"${preview.ingest_preview.idempotency_key}","label_policy":"${preview.ingest_preview.label_policy}","memory":"${preview.ingest_preview.memory}","provenance":"${preview.ingest_preview.provenance}","default_observation_to_ingestion":"${preview.ingest_preview.default_observation_to_ingestion}","dry_run":false}}
+```
+
+```json
+{"tool":"kmp_ingest","save_as":"ingest_retry","arguments":{"about":"${preview.ingest_preview.about}","idempotency_key":"${preview.ingest_preview.idempotency_key}","label_policy":"${preview.ingest_preview.label_policy}","memory":"${preview.ingest_preview.memory}","provenance":"${preview.ingest_preview.provenance}","default_observation_to_ingestion":"${preview.ingest_preview.default_observation_to_ingestion}","dry_run":false}}
+```
+
+```json
+{"tool":"kmp_inspect","save_as":"preview_read","arguments":{"about":"example:guide:canonical-ingest","ref":"${preview.generated_refs.0}","budget":{"max_bytes":22000}}}
+```
+
+```json
+{"tool":"kmp_trace","save_as":"packet_proof","arguments":{"about":"example:guide:canonical-ingest","from":"${preview.generated_refs.0}","to":"${constraint.generated_refs.0}","budget":{"max_bytes":20000}}}
+```
+
+## Read and review the limit
+
+Inspect D1 and follow chosen_because to C1. The source text, event/observation times and link proof must match the compiled packet. D1 is a decision, not evidence that SQLite passed a test. A canonical replay checks representation and idempotency; validation by the writer does not remove the need for truthful source interpretation.
+
+```json
+{"tool":"kmp_time","save_as":"records","arguments":{"move":"forward","about":"example:guide:canonical-ingest","from":{"time":"2026-09-02T08:00:00Z"},"axis":"observed","limit":{"entries":100},"budget":{"max_bytes":50000}}}
+```
+
+```json
+{"tool":"kmp_view_open","save_as":"view","arguments":{"about":"example:guide:canonical-ingest"}}
+```
+
+```json
+{"tool":"kmp_view_apply_intent","save_as":"frame","arguments":{"view_id":"${view.view_id}","expected_revision":"${view.view_revision}","idempotency_key":"guide-canonical-ingest:frame:v1","focus":{"time_range":{"from":"2026-09-02T08:55:00Z","to":"2026-09-02T10:00:00Z","axis":"observed"}},"selection":"${preview.generated_refs.0}","projection":{"semantic_zoom":"moment","labels":[{"key":"case","op":"in","values":["canonical-ingest"]}]},"explanation":"Review the selected source and its typed relations"}}
+```
+
+```json
+{"tool":"kmp_view_get_state","save_as":"view_state","arguments":{"view_id":"${view.view_id}"}}
+```
+
+
+## Source time is not support declaration time
+
+A log R1 is observed on September 1 without a known association to execution E1.
+On September 2 a review establishes that R1 verifies E1. Preserve R1's original
+id, text, source and `time` when declaring `supports: [E1]` in the September 2
+packet. Do not change E1's earlier coordinates. KMP stores the association's
+own observation and ingestion as `support_clocks`; normal calls omit this group.
+A September 1 observed read must not use that new support. A read at the September 2
+declaration includes it. An occurred read can retrieve later evidence about an
+older event; this does not show that the association was known then.
+
+For canonical restoration, retain the returned `support_clocks` group. A preserved
+ingestion with an absent observation keeps that observation unknown. This does
+not create historical versions when the same association is declared again.
+Native regression `evidence_attachment_clocks` executes the old-source/later-link
+case with inclusive and exclusive cuts, retry, restart and restoration.
