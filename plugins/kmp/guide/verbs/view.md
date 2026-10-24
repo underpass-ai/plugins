@@ -1,0 +1,104 @@
+## Share the view, not just the answer
+
+A request such as “Show me the memory behind this decision” has two lanes.
+First retrieve the memory that answers the question and inspect or trace the
+evidence the answer relies on. Then open that same about once with
+`kmp_view_open` and move the shared ChronoLoom view with
+`kmp_view_apply_intent`. The visual lane frames the retrieved evidence; it does
+not replace retrieval, and the view is not itself proof.
+
+The shared view belongs to its serving process and expires when that process
+ends; durable memories remain in the store. A fresh process first recovers
+those memories, then opens its own view. Sharing a store does not share the
+ephemeral view registry between independent server processes.
+
+Declare meaning, never screen coordinates: clock, range, semantic zoom,
+dimensions, relation classes, selection or trace. Pass the view's current
+`revision` as `expected_revision` on every intent. If another participant has
+moved the view and the revision conflicts, get the current state and rebase
+the intent on it instead of retrying blind. Do not call `kmp_view_open` again
+to navigate an already-open view.
+
+Before continuing the conversation after a shared-view interaction, call
+`kmp_view_get_state`. The person may have clicked, filtered, panned or undone
+the agent's last intent, and the next answer must continue from what both are
+actually looking at.
+
+## The viewer, when it offers itself
+
+`kmp_write_memory` sometimes comes back with a `viewer` block:
+
+```json
+"viewer": {
+  "url": "http://127.0.0.1:7317/",
+  "tell_the_user": "Their memory is now a graph they can open: …"
+}
+```
+
+That is the session saying it is already serving this store as a graph — the
+same abouts, the same typed relations, the same evidence, in a window instead
+of in JSON. It appears on the **first memory a session writes**, because that
+is the first moment there is anything to look at, and it does not appear
+again.
+
+Pass the link on when it appears. It is the one thing a human can look at
+without learning any of this, and most people never find out it exists.
+
+VERB show. Retrieval comes first; then use kmp_view_open once, kmp_view_apply_intent to declare semantic focus, and kmp_view_get_state before continuing. Do not send pixels or reopen to navigate. Minimum input: exact about, then a content-derived intent key and current view revision. Expect: a shared ChronoLoom state and capability URL. Next: rebase on a revision conflict or continue from the person's latest state. ChronoLoom renders one plane per about, with a real 3D orbit or flat camera and one exact time window. projection.abouts names at most five additional abouts to compare. Selection, focus refs, trace endpoints, dimensions and label values are checked against the primary and those additional abouts. The two tools answer absence differently and on purpose: kmp_view_open fails when its about is not in the store, because every pane of the loom it would draw is that about; kmp_view_apply_intent moves a view that is already open, so it applies what it can and lists each ref it could not honor in unhonored, next to the dimensions and overlays reported there. An absent focus ref is dropped, an absent selection or trace end leaves the selection and trace as they were, and an absent target.about leaves the loom on the about it was weaving. If none of the refs an intent names exist, nothing is applied: applied is false, the state is unchanged, and the first unhonored entry says so. Read unhonored on every intent — what is missing is always named there and never silently drawn. A selection-only intent retains existing layers; supplying projection replaces the whole projection, so repeat abouts when those layers should remain. Comparing abouts does not declare a semantic link between their memories. projection.labels uses ordinary label predicates, not privileged lanes. Human takeover preserves the frame, advances its revision and retains undo of the semantic move. Read the new revision before continuing; the actor panel describes provenance, not an exclusive lock or a live-agent connection. At Moment, a projection also carries source-owned same_event_as and same_entity_as declarations with their proposal method. Their target refs do not load another about or bypass its clock, labels or page. ChronoLoom draws an arc only when both endpoints are visible in the explicitly loaded planes.
+
+The inspector is labelled **Current record**. Its status and links include
+updates outside the scene window; the clock and UTC window remain visible
+for the scene. To establish lifecycle at an earlier instant, use a dated
+`kmp_wake` or `kmp_ask` and audit that returned proof.
+
+Following an entry relation in the inspector selects its recorded memory even outside the current window, reveals it on the chosen clock and centers it after successful selection. Missing clocks or inaccessible entries produce the existing read error; the link does not broaden about scope.
+
+Following a relation can reveal a memory written after the view was opened.
+ChronoLoom extends the time window from the target's stored clock and keeps
+the current about and label filters; a filtered target stays unavailable.
+
+A focus containing several refs reads their current headers and coordinates together
+from one store snapshot. Each batch accepts at most 64 refs and touches at most
+4096 distinct nodes, including the refs and their coordinate scopes. Larger foci
+use several bounded batches with one shared 32768-edge budget, tied to the
+same revision. If the store changes between batches, ChronoLoom retries the whole
+focus once from the new revision. A second conflict or an incomplete coordinate
+budget preserves the previous window and displays the refusal; an agent intent
+that could not be applied is reported and is not replayed on every poll.
+ChronoLoom keeps missing refs visible as unavailable. This framing read
+does not load canonical bodies or certify proof completeness; use Trace's bounded
+proof expansion and Inspect for the actual evidence. Older in-flight focus reads
+cannot overwrite a newer focus, about or clock.
+
+Repeated identical projections may reuse a bounded application cache. Each call
+opens a fresh read snapshot first; writes to any about, bodies, labels or relations
+prevent reuse of the earlier projection. The full clock, range, scope, label and
+page selection stays part of its identity. A backend without a certified complete
+revision recomputes the projection. This reuse does not change authorization,
+pagination or proof completeness and does not make a stored view a current audit.
+
+Rapid human drags and sliders follow the latest position; release keeps the final
+interval. Search waits for a short typing pause, while explicit view intents and
+Escape apply immediately. Selection, direction, labels and the chosen clock keep
+their meaning as existing scene objects are updated.
+
+## Whole paths on the loom
+
+To show a person how one fact led to another, pass `paths: {"from": ref,
+"to": ref}` (`to` and `max_hops` optional) in `kmp_view_apply_intent`. The
+view runs `kmp_curate` `mode:"paths"` over its about and projected abouts —
+the same search, the same cost and the same text sent to TypeSafe when Jev is
+configured — and keeps the answer in `state.paths`: the chains, their
+`review_token`, each proposed step's `item_id`, and the declarations the audit
+avoided. ChronoLoom draws declared steps as relations, proposed steps dashed
+with their type and confidence, avoided ones dotted. `paths: null` clears them;
+an end the store does not hold leaves them unchanged and is listed in
+`unhonored`. Project the abouts a cross-about chain passes through, or its
+steps stay listed in the panel as outside the frame.
+
+The person can press **Declare…** on a proposed step and write the why and
+evidence. The loom does not write: it composes the exact `kmp_curate`
+`mode:"apply"` call and asks the person to give it to you. Run it unchanged
+(add your `context_id`, or keep the `actor` they named), handle `needs_review`
+and doubts as for any apply, and draw the paths again to show the result. The
+`review_token` belongs to this serving process; after a restart, search again.

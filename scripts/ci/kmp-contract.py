@@ -223,8 +223,8 @@ def verify_contract(
     source_capabilities = read_json(source_root / "capabilities.json").get("mcp_tools")
     if capabilities != source_capabilities or not isinstance(capabilities, list):
         raise SystemExit("KMP capability map differs from its immutable source")
-    if len(capabilities) != 13 or len(set(capabilities)) != 13:
-        raise SystemExit("KMP marketplace must expose exactly thirteen unique MCP tools")
+    if len(capabilities) != 16 or len(set(capabilities)) != 16:
+        raise SystemExit("KMP marketplace must expose exactly sixteen unique MCP tools")
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     rows = [line for line in readme.splitlines() if line.startswith("| `kmp` |")]
@@ -232,7 +232,7 @@ def verify_contract(
         raise SystemExit(f"marketplace README must contain one kmp row, found {len(rows)}")
     row = rows[0]
     verify_description("marketplace README kmp row", row)
-    for claim in ("thirteen MCP tools", "ten memory moves", "three shared ChronoLoom view tools"):
+    for claim in ("sixteen MCP tools", "thirteen memory moves", "three shared ChronoLoom view tools"):
         if claim not in row:
             raise SystemExit(f"marketplace README kmp row must say {claim!r}")
     if RETIRED_COUNT.search(readme):
@@ -240,7 +240,7 @@ def verify_contract(
 
     source_state = "published annotated tag" if published else "unpublished tag bound to KMP main"
     print(
-        f"KMP marketplace contract passed: {versions.pop()}, 13 tools, "
+        f"KMP marketplace contract passed: {versions.pop()}, 16 tools, "
         f"source {ref} ({source_state})"
     )
 
